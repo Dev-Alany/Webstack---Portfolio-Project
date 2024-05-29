@@ -35,7 +35,6 @@ import withLayout from "./components/HOCApp";
 import ChartOfAccounts from "./scenes/AccountsAndFinanceManagement/chartofaccounts";
 import { Line, Pie } from "react-chartjs-2";
 import BarChart from "./components/BarChart";
-import CompanyManagementModule from "./scenes/CompanyManagement/CompanyManagement";
 
 const setupcaseclient = new ApolloClient({
   uri: "https://localhost:7266/graphql/",

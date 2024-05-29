@@ -1,20 +1,9 @@
 import { Box } from "@mui/material";
 import DynamicTable from "../../../data/DynamicTable/dynamicTable";
 import { companyManagementUrl } from "../../../config";
-
-import { useEffect, useState } from "react";
-
-import { PulseLoader } from "react-spinners";
-import {
-    AddOnColumns,
-
-} from "../../../data/DynamicTable/CompanyManagementColumns";
+import {AddOnColumns} from "../../../data/DynamicTable/CompanyManagementColumns";
 import CompanyForm from "./form";
-import {
-    allAddOns,
-
-} from "../../../data/Axios/queries";
-
+import {allAddOns} from "../../../data/Axios/queries";
 import AddOnForm from "./form";
 
 const base_url = companyManagementUrl.uri;

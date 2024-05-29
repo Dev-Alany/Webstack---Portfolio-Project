@@ -7,12 +7,12 @@ import {
   graphqlQuery,
 } from "../../../data/Axios/DynamicService";
 
-import { companyManagementUrl } from "../../../config";
+import { companyManagementUrl,setupManagementUrl } from "../../../config";
 import { companyFields } from "../../../data/DynamicTable/CompanyManagementForms";
 import { allSubscriptionPlans } from "../../../data/Axios/queries";
 
 const base_url = companyManagementUrl.uri;
-
+const setup_url =setupManagementUrl.uri;
 const CompanyForm = (props) => {
   const decodedToken = JSON.parse(localStorage.getItem("decodedToken"));
   const userId = parseInt(decodedToken.Id);
@@ -23,7 +23,7 @@ const CompanyForm = (props) => {
       try {
         const subscriptionsDataResponse = await graphqlQuery(
           allSubscriptionPlans,
-          base_url
+          setup_url
         );
         if (subscriptionsDataResponse) {
           setSubscriptionsData(subscriptionsDataResponse);

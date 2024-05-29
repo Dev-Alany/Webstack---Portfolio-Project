@@ -1,6 +1,6 @@
 import { Box } from "@mui/material";
 import DynamicTable from "../../../data/DynamicTable/dynamicTable";
-import { companyManagementUrl } from "../../../config";
+import { companyManagementUrl,setupManagementUrl } from "../../../config";
 
 import { useEffect, useState } from "react";
 
@@ -13,6 +13,7 @@ import AddOnForm from "./form";
 import SubscriptionPlanForm from "./form";
 
 const base_url = companyManagementUrl.uri;
+const setup_url = setupManagementUrl.uri;
 const actions = {
   edit: {
     key: "EDIT",
@@ -40,7 +41,7 @@ function SubscriptionPlansTable() {
           columns={SubscriptionPlanColumns}
           FormComponent={SubscriptionPlanForm}
           query={allSubscriptionPlans}
-          base_url={base_url}
+          base_url={setup_url}
           actions={actions}
         />
       </>
