@@ -1,0 +1,5 @@
+// actionTypes.js
+
+export const FETCH_ROLES_REQUEST = "FETCH_ROLES_REQUEST";
+export const FETCH_ROLES_SUCCESS = "FETCH_ROLES_SUCCESS";
+export const FETCH_ROLES_FAILURE = "FETCH_ROLES_FAILURE";
