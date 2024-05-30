@@ -20,12 +20,11 @@ import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import { tokens } from "../../theme";
 import Header from "../../components/Header";
 import { useTheme } from "@mui/material";
-import { gql, useQuery, useMutation } from "@apollo/client";
 import { useNavigate } from "react-router-dom";
-import { GET_USERS, RESET_PASSWORD, ACTIVATE_USER, DEACTIVATE_USER } from "../../data/userData";
-import UsersForm from "./users-form";
 import AnchorTemporaryDrawer from "../../components/Drawer";
 import swal from "sweetalert";
+import { userManagementClient } from "../../config";
+import UsersForm from "./users-form";
 
 function Users() {
   const theme = useTheme();
@@ -36,68 +35,30 @@ function Users() {
   const [EditData, SetEdetData] = useState();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const { loading, error, data, refetch } = useQuery(GET_USERS);
-  const [loadingScreen, setLoadingScreen] = useState(true);
-
-  const [activateUser] = useMutation(ACTIVATE_USER, {
-    onCompleted: () => {
-      swal("Success!", "User has been activated successfully", "success");
-      refetch(); // Refetch users data after activation
-    },
-    onError: (error) => {
-      swal("Error!", "Unable to activate user, try again later", "error");
-    },
-  });
-
-  const [deactivateUser] = useMutation(DEACTIVATE_USER, {
-    onCompleted: () => {
-      swal("Success!", "User has been deactivated successfully", "success");
-      refetch(); // Refetch users data after deactivation
-    },
-    onError: (error) => {
-      swal("Error!", "Unable to deactivate user, try again later", "error");
-    },
-  });
-
-  const [resetPassword] = useMutation(RESET_PASSWORD, {
-    onCompleted: () => {
-      swal("Success!", "User password has been reset successfully", "success");
-    },
-    onError: (error) => {
-      swal("Error!", "Unable to reset password, try again later", "error");
-    },
-  });
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setLoadingScreen(false);
-    }, 1000);
+    const fetchUsers = async () => {
+      try {
+        const response = await userManagementClient.get("/");
+        setUsers(response.data);
+      } catch (err) {
+        setError(err);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    return () => clearTimeout(timer);
+    fetchUsers();
   }, []);
-
-  if (loadingScreen) {
-    return (
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "100vh",
-        }}
-      >
-        <PulseLoader size={15} color={"#3f51b5"} />
-      </Box>
-    );
-  }
 
   if (loading) return <CircularProgress />;
   if (error) return <p>Error: {error.message}</p>;
 
-  const dataArray = data.allUsers;
-
   const handleEdit = (id) => {
-    const userToEdit = dataArray.find((user) => user.id === id);
+    const userToEdit = users.find((user) => user.id === id);
     SetEdetData(userToEdit);
     setIsEditing(true);
     if (isMobile) {
@@ -117,36 +78,34 @@ function Users() {
     }
   };
 
-  const handleActionSelect = (event, id) => {
+  const handleActionSelect = async (event, id) => {
     const action = event.target.value;
 
-    switch (action) {
-      case "edit":
-        handleEdit(id);
-        break;
-      case "activate":
-        activateUser({
-          variables: {
-            id,
-          },
-        });
-        break;
-      case "deactivate":
-        deactivateUser({
-          variables: {
-            id,
-          },
-        });
-        break;
-      case "resetpassword":
-        resetPassword({
-          variables: {
-            id,
-          },
-        });
-        break;
-      default:
-        break;
+    try {
+      switch (action) {
+        case "edit":
+          handleEdit(id);
+          break;
+        case "activate":
+          await userManagementClient.post(`/activate/${id}`);
+          swal("Success!", "User has been activated successfully", "success");
+          break;
+        case "deactivate":
+          await userManagementClient.post(`/deactivate/${id}`);
+          swal("Success!", "User has been deactivated successfully", "success");
+          break;
+        case "resetpassword":
+          await userManagementClient.post(`/resetpassword/${id}`);
+          swal("Success!", "User password has been reset successfully", "success");
+          break;
+        default:
+          break;
+      }
+      // Refetch users data after action
+      const response = await userManagementClient.get("/");
+      setUsers(response.data);
+    } catch (error) {
+      swal("Error!", "Unable to complete the action, try again later", "error");
     }
   };
 
@@ -260,7 +219,7 @@ function Users() {
 
         <DataGrid
           checkboxSelection
-          rows={dataArray}
+          rows={users}
           columns={columns}
           components={{ Toolbar: GridToolbar }}
           style={{ minWidth: isMobile ? "auto" : "900px", width: "100%" }}
@@ -275,7 +234,7 @@ function Users() {
           )}
         />
 
-{isMobile && (
+        {isMobile && (
           <Dialog
             open={dialogOpen}
             onClose={() => setDialogOpen(false)}
@@ -293,7 +252,7 @@ function Users() {
               </IconButton>
             </DialogTitle>
             <DialogContent>
-              <UsersForm  onClick={() => setDialogOpen(false)} isEditing={isEditing} courtData={EditData} />
+              <UsersForm onClick={() => setDialogOpen(false)} isEditing={isEditing} courtData={EditData} />
             </DialogContent>
           </Dialog>
         )}
