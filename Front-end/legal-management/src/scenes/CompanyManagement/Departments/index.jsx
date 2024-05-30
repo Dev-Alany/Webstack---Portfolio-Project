@@ -11,7 +11,6 @@ import {
   DepartmentColumns,
   RegionsColumns,
 } from "../../../data/DynamicTable/CompanyManagementColumns";
-import CompanyForm from "./form";
 import {
   allBranches,
   allCompanies,

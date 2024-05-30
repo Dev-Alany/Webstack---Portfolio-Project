@@ -92,9 +92,6 @@ const AccountAndFinanceModule = () => {
     { label: "Bank Branches", content: <BankBranchView /> },
     { label: "Bank Accounts", content: <BankAccountsView /> },
     { label: "Payment Types", content: <PaymentTypeView /> },
-    { label: "Fiscal Year", content: <FiscalYearsView /> },
-    { label: "Tax Rates", content: <TaxRatesView /> },
-    { label: "Tax Authorities", content: <TaxAuthoritiesView /> },
   ];
 
   return (

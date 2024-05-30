@@ -15,11 +15,8 @@ import FolderSharedIcon from '@mui/icons-material/FolderShared';
 import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
 import GavelIcon from '@mui/icons-material/Gavel';
 import TeamAssignments from "../CaseManagement/CaseDetails/TeamAssignments";
-import CaseFacts from "../CaseManagement/CaseDetails/Facts";
 import CaseTasks from "../CaseManagement/CaseDetails/CaseTasks";
 import CaseEvents from "../CaseManagement/CaseDetails/EventRecording";
-import CourtAssignments from "../CaseManagement/CaseDetails/CourtRoomAssignment";
-import DocumentUploads from "../CaseManagement/CaseDetails/DocumentUploads";
 import JudgeAssignments from "../CaseManagement/CaseDetails/JudgeAssignments";
 import CaseDashboard from "../CaseManagement/CaseDetails/CaseDashBoard";
 
@@ -31,9 +28,6 @@ const tabContents = [
   <CaseTasks />,
   <CaseEvents />,
   <JudgeAssignments />,
-  <CaseFacts />,
-  <CourtAssignments />,
-  <DocumentUploads />,
   "Fact Recording content",
   "Fact Recording content",
 ];
@@ -116,10 +110,6 @@ function CaseDetails() {
     { label: "Task allocation", icon: AddTaskIcon, content: <CaseTasks /> },
     { label: "Event Recording", icon: EventIcon, content: <CaseEvents /> },
     { label: "Judge Assignment", icon: GavelIcon, content: <JudgeAssignments /> },
-    { label: "Fact Recording", icon: FactCheckIcon, content: <CaseFacts /> },
-    { label: "Court Assignment", icon: AssignmentTurnedInIcon, content: <CourtAssignments /> },
-    { label: "Document Uploads", icon: FolderSharedIcon, content: <DocumentUploads /> },
-    { label: "Fact Recording", icon: FactCheckIcon, content: "Fact Recording content" },
   ];
 
   return (

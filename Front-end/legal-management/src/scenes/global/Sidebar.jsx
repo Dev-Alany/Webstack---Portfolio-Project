@@ -24,7 +24,6 @@ import PieChartOutlinedIcon from "@mui/icons-material/PieChartOutlined";
 import TimelineOutlinedIcon from "@mui/icons-material/TimelineOutlined";
 import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
 import MapOutlinedIcon from "@mui/icons-material/MapOutlined";
-// import OtherSetupsOutlinedIcon from "@mui/icons-material/OtherSetupsOutlinedIcon"
 import { Groups2Outlined } from "@mui/icons-material";
 import AnalyticsOutlinedIcon from "@mui/icons-material/AnalyticsOutlined";
 import DashboardIcon from '@mui/icons-material/Dashboard';
@@ -40,81 +39,48 @@ import GavelIcon from '@mui/icons-material/Gavel';
 import TerrainIcon from '@mui/icons-material/Terrain';
 import MessageIcon from '@mui/icons-material/Message';
 import SettingsApplicationsIcon from '@mui/icons-material/SettingsApplications';
-import Axios from "axios";
+
+const menuItems = [
+  { id: 1007, title: "Dashboard", icon: "dashboard", children: [
+      { id: 2005, title: "SuperAdmin Dashboard", icon: "Dashboard", to: "/super-admin-dashboard" }
+    ]
+  },
+  { id: 1, title: "Case Management", icon: "casemanagement", children: [
+      { id: 2006, title: "Cases", icon: "Cases", to: "/Cases" }
+    ]
+  },
+  { id: 3, title: "Client Management", icon: "clientmanagement", children: [
+      { id: 2, title: "Corporate Clients", icon: "clients", to: "/corporate-clients" }
+    ]
+  },
+  { id: 5, title: "User Management", icon: "usermanagement", children: [
+      { id: 1, title: "Users", icon: "users", to: "/users" }
+    ]
+  },
+  { id: 1012, title: "Accounts and Finance Management", icon: "accountsandfinancemanagement", children: [
+      { id: 2007, title: "Account Setups", icon: "Accounts", to: "/accounts-setups" }
+    ]
+  },
+ 
+];
 
 function getIconByName(iconName) {
   switch (iconName) {
-    case "home":
-      return <HomeOutlinedIcon />;
-    case "users":
-      return <PeopleOutlinedIcon />;
+    case "companymanagement":
+      return <LocationCityIcon />;
+    case "dashboard":
+      return <DashboardIcon />;
+    case "casemanagement":
+      return <CasesIcon />;
+    case "clientmanagement":
+      return <PersonIcon />;
     case "usermanagement":
       return <Groups2Outlined />;
-    case "contacts":
-      return <ContactsOutlinedIcon />;
-    case "receipt":
-      return <ReceiptOutlinedIcon />;
-    case "Clients":
-      return <PersonIcon />;
-    case "calendar":
-      return <CalendarTodayOutlinedIcon />;
-    case "help":
-      return <HelpOutlinedIcon />;
-    case "barChart":
-      return <BarChartOutlinedIcon />;
-    case "pieChart":
-      return <PieChartOutlinedIcon />;
-    case "timeline":
-      return <TimelineOutlinedIcon />;
-    case "menu":
-      return <MenuOutlinedIcon />;
-    case "map":
-      return <MapOutlinedIcon />;
-    case "analytics":
-      return <AnalyticsOutlinedIcon />;
-    case "Accounts":
+    case "rolemanagement":
+      return <ViewModuleIcon />;
+    case "accountsandfinancemanagement":
       return <ManageAccountsIcon />;
-    case "Dashboard":
-      return <DashboardIcon />;
-    case "clients":
-      return <GroupIcon />;
-    case "Cases":
-      return <CasesIcon />;
-    case "chartofAccounta":
-      return <AddchartIcon />;
-    case "reports":
-      return <SummarizeIcon />;
-    case "companies":
-      return <LocationCityIcon />;
-    case "module":
-      return <ViewModuleIcon />;
-    case "role":
-      return <ViewModuleIcon />;
-    case "rolegroup":
-      return <ViewModuleIcon />;
-    case "rights":
-      return <CheckIcon />;
-      // setup Management
-    case "Court Setup-icon":
-      return <GavelIcon />;  
-    case "Geography-icon":
-      return <TerrainIcon />; 
-    case "Message-icon":
-      return <MessageIcon />; 
-    case "othersetups":
-      return <SettingsApplicationsIcon/>; 
-    case "module":
-      return <ViewModuleIcon />; 
-    case "module":
-      return <ViewModuleIcon />; 
-    case "module":
-      return <ViewModuleIcon />; 
-    case "module":
-      return <ViewModuleIcon />; 
-
-    // default:
-      // Return a default icon or handle the case when the iconName doesn't match any case
-      // return <AnalyticsOutlinedIcon />;
+    
   }
 }
 
@@ -162,15 +128,9 @@ const Sidebar = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [selected, setSelected] = useState("Dashboard");
   const [selectedMenu, setMenuSelected] = useState("Dashboard");
-  const [apiData, setData] = useState([]);
   const [isDrawerOpen, setDrawerOpen] = useState(false);
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
   const [isButtonVisible, setButtonVisible] = useState(true);
-  useEffect(() => {
-    const rights = JSON.parse(localStorage.getItem("rights"));
-    const cleanedData = JSON.parse(rights.replace(/\\/g, ""));
-    setData(cleanedData);
-  }, []);
 
   const sidebarContent = (
     <Box
@@ -222,7 +182,7 @@ const Sidebar = () => {
                     alt="profile-user"
                     width="100px"
                     height="100px"
-                    src={`../../assets/m.svg`}
+                    src={`../..//M.png`}
                     style={{ cursor: "pointer", borderRadius: "10%" }}
                   />
                 </Box>
@@ -262,7 +222,7 @@ const Sidebar = () => {
 
           {/* MENU ITEMS */}
           <Box paddingLeft={isCollapsed ? undefined : "10%"}>
-            {apiData.map((menuitem, i) => (
+            {menuItems.map((menuitem, i) => (
               <Item
                 key={i}
                 title={menuitem.title}
