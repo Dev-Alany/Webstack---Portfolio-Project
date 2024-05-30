@@ -10,7 +10,25 @@ export const getAllUsers = async () => {
     throw error;
   }
 };
+export const getAllCompanyRegionView = async () => {
+    try {
+      const response = await userManagementClient.get("/company");
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching users: ", error);
+      throw error;
+    }
+  };
 
+  export const getallCases = async () => {
+    try {
+      const response = await userManagementClient.get("/cases");
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching users: ", error);
+      throw error;
+    }
+  };
 export const createUser = async (user) => {
   try {
     const response = await userManagementClient.post("/data", user);

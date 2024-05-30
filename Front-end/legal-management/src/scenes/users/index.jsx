@@ -93,7 +93,7 @@ function Users() {
           swal("Success!", "User has been activated successfully", "success");
           break;
         case "deactivate":
-          await userManagementClient.post(`/deactivate/${id}`);
+          await userManagementClient.post(`/delete/${id}`);
           swal("Success!", "User has been deactivated successfully", "success");
           break;
         case "resetpassword":
