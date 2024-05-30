@@ -25,6 +25,7 @@ import AnchorTemporaryDrawer from "../../components/Drawer";
 import swal from "sweetalert";
 import { userManagementClient } from "../../config";
 import UsersForm from "./users-form";
+import { getAllUsers, createUser, deleteUser } from "../../api/userservice";  // Import service functions
 
 function Users() {
   const theme = useTheme();
@@ -32,7 +33,7 @@ function Users() {
   const colors = tokens(theme.palette.mode);
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const [isEditing, setIsEditing] = useState(false);
-  const [EditData, SetEdetData] = useState();
+  const [editData, setEditData] = useState(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [users, setUsers] = useState([]);
@@ -40,26 +41,27 @@ function Users() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        const response = await userManagementClient.get("/");
-        setUsers(response.data);
-      } catch (err) {
-        setError(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchUsers();
   }, []);
+
+  const fetchUsers = async () => {
+    try {
+      setLoading(true);
+      const data = await getAllUsers();
+      setUsers(data.data); // Adjust based on your API response structure
+    } catch (err) {
+      setError(err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   if (loading) return <CircularProgress />;
   if (error) return <p>Error: {error.message}</p>;
 
   const handleEdit = (id) => {
     const userToEdit = users.find((user) => user.id === id);
-    SetEdetData(userToEdit);
+    setEditData(userToEdit);
     setIsEditing(true);
     if (isMobile) {
       setDialogOpen(true);
@@ -70,7 +72,7 @@ function Users() {
 
   const handleAddUser = () => {
     setIsEditing(false);
-    SetEdetData(null);
+    setEditData(null);
     if (isMobile) {
       setDialogOpen(true);
     } else {
@@ -102,27 +104,50 @@ function Users() {
           break;
       }
       // Refetch users data after action
-      const response = await userManagementClient.get("/");
-      setUsers(response.data);
+      fetchUsers();
     } catch (error) {
       swal("Error!", "Unable to complete the action, try again later", "error");
     }
   };
 
+  const handleFormSubmit = async (user) => {
+    try {
+      if (isEditing) {
+        // Update user logic here
+        // await updateUser(user); // Uncomment and implement this if update functionality is available
+      } else {
+        await createUser(user);
+      }
+      fetchUsers();
+      setDrawerOpen(false);
+      setDialogOpen(false);
+    } catch (error) {
+      swal("Error!", "Unable to save the user, try again later", "error");
+    }
+  };
+
+  const handleDelete = async (id) => {
+    try {
+      await deleteUser(id);
+      fetchUsers();
+    } catch (error) {
+      swal("Error!", "Unable to delete the user, try again later", "error");
+    }
+  };
+
   const columns = [
-    { field: "id", type: "number", headerName: "ID", flex: 0.5 },
-    { field: "username", headerName: "Username", flex: 0.5 },
-    { field: "firstName", headerName: "First Name", flex: 0.5 },
-    { field: "lastName", headerName: "Last Name", flex: 0.5 },
-    { field: "email", headerName: "Email", flex: 0.5 },
-    { field: "phone", headerName: "Phone Number", flex: 0.5 },
+    { field: "User_Id", type: "number", headerName: "ID", flex: 0.5 },
+    { field: "Username", headerName: "Username", flex: 0.5 },
+    { field: "First_name", headerName: "First Name", flex: 0.5 },
+    { field: "Last_name", headerName: "Last Name", flex: 0.5 },
+    { field: "User_email", headerName: "Email", flex: 0.5 },
     {
-      field: "isActive",
+      field: "status",
       headerName: "Status",
       flex: 0.5,
-      renderCell: ({ row: { isActive } }) => {
-        const statusText = isActive === 1 ? "Active" : "Blocked";
-        const statusColor = isActive === 1 ? "green" : "red";
+      renderCell: ({ row: { status } }) => {
+        const statusText = status === "Active" ? "Active" : "Blocked";
+        const statusColor = status === "Active" ? colors.greenAccent[500]: "red";
         return (
           <Typography variant="body1" style={{ color: statusColor }}>
             {statusText}
@@ -159,6 +184,12 @@ function Users() {
               <MenuItem value="resetpassword">
                 <LockResetRounded />
                 <Typography variant="body1">Reset Password</Typography>
+              </MenuItem>
+              <MenuItem value="delete">
+                <IconButton onClick={() => handleDelete(id)}>
+                  <BlockIcon />
+                </IconButton>
+                <Typography variant="body1">Delete</Typography>
               </MenuItem>
             </Select>
           </Box>
@@ -223,6 +254,7 @@ function Users() {
           columns={columns}
           components={{ Toolbar: GridToolbar }}
           style={{ minWidth: isMobile ? "auto" : "900px", width: "100%" }}
+          getRowId={(row) => row.User_Id}
         />
 
         <AnchorTemporaryDrawer
@@ -230,7 +262,7 @@ function Users() {
           open={drawerOpen}
           onClose={() => setDrawerOpen(false)}
           FormComponent={() => (
-            <UsersForm onClose={() => setDrawerOpen(false)} isEditing={isEditing} userData={EditData} />
+            <UsersForm onClose={() => setDrawerOpen(false)} onSubmit={handleFormSubmit} isEditing={isEditing} userData={editData} />
           )}
         />
 
@@ -252,7 +284,7 @@ function Users() {
               </IconButton>
             </DialogTitle>
             <DialogContent>
-              <UsersForm onClick={() => setDialogOpen(false)} isEditing={isEditing} courtData={EditData} />
+              <UsersForm onClose={() => setDialogOpen(false)} onSubmit={handleFormSubmit} isEditing={isEditing} userData={editData} />
             </DialogContent>
           </Dialog>
         )}

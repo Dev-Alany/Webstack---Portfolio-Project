@@ -1,73 +1,43 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { CircularProgress } from "@mui/material";
 import swal from "sweetalert";
-import axios from "axios";
-import { setupManagementUrl, userManagementClient } from "../../config";
+import { userManagementClient } from "../../config";
 import DynamicForm from "../../data/Axios/DynamicForm";
-import { usersField } from "../../data/DynamicTable/usersDynamicForms";
 
 const UsersForm = (props) => {
   const decodedToken = JSON.parse(localStorage.getItem("decodedToken"));
   const userId = parseInt(decodedToken.Id);
-  const [companyData, setCompanyData] = useState([]);
-  const [loading, setLoading] = useState(true);
 
   const initialValues = {
-    firstName: props.userData ? props.userData.firstName : "",
-    lastName: props.userData ? props.userData.lastName : "",
+    first_name: props.userData ? props.userData.first_name : "",
+    last_name: props.userData ? props.userData.last_name : "",
     email: props.userData ? props.userData.email : "",
     phone: props.userData ? props.userData.phone : "",
-    username: props.userData ? props.userData.username : "",
-    idno: props.userData ? props.userData.idno : "",
-    companyId: props.userData ? props.userData.companyId : "",
+    // username: props.userData ? props.userData.username : "",
   };
 
-  useEffect(() => {
-    const fetchCompanies = async () => {
-      try {
-        const response = await axios.get(`${setupManagementUrl.uri}/companies`);
-        setCompanyData(response.data);
-      } catch (error) {
-        console.error("Error fetching companies:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchCompanies();
-  }, []);
-
-  const companyOptions = companyData.map((company) => ({
-    value: company.id,
-    label: company.company,
-  }));
-
   const handleSubmit = async (values, { setSubmitting }) => {
-    const { firstName, lastName, email, phone, username, idno, companyId } = values;
+    const {first_name,last_name,email, phone} = values;
 
     try {
       if (props.isEditing) {
-        await userManagementClient.put(`/users/${props.userData.id}`, {
-          firstName,
-          lastName,
+        await userManagementClient.put(`/data/${props.userData.id}`, {
+          first_name,
+          last_name,
           email,
           phone,
-          username,
-          idno,
-          companyId,
-          createdBy: userId,
+          // username,
+          // createdBy: userId,
         });
         swal("Success!", "User has been updated successfully", "success");
       } else {
-        await userManagementClient.post("/users", {
-          firstName,
-          lastName,
+        await userManagementClient.post("/data", {
+          first_name,
+          last_name,
           email,
           phone,
-          username,
-          idno,
-          companyId,
-          createdBy: userId,
+          // username,
+          // createdBy: userId,
         });
         swal("Success!", "User has been created successfully", "success");
       }
@@ -79,20 +49,12 @@ const UsersForm = (props) => {
     setSubmitting(false);
   };
 
-  if (loading) {
-    return <CircularProgress />;
-  }
-
   const fields = [
-    ...usersField,
-    {
-      name: "companyId",
-      label: "Company",
-      type: "select",
-      options: companyOptions,
-      gridColumn: "span 2",
-      required: true,
-    },
+    { name: "first_name", label: "First Name", type: "text", required: true },
+    { name: "last_name", label: "Last Name", type: "text", required: true },
+    { name: "email", label: "Email", type: "email", required: true },
+    { name: "phone", label: "Phone", type: "text", required: true },
+    // { name: "username", label: "Username", type: "text", required: true },
   ];
 
   return (

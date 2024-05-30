@@ -1,7 +1,6 @@
 // src/config.js
 import axios from 'axios';
 
-// Helper function to create an Axios instance with authentication
 const createAxiosInstance = (baseURL) => {
   const instance = axios.create({
     baseURL,
@@ -24,7 +23,7 @@ const createAxiosInstance = (baseURL) => {
   return instance;
 };
 
-export const userManagementClient = createAxiosInstance("http://127.0.0.1:5000/data");
+export const userManagementClient = createAxiosInstance("http://127.0.0.1:5000");
 
 export const loginUrl = {
   login: "https://sheriapro.mcb.co.ke/gateway/login",
