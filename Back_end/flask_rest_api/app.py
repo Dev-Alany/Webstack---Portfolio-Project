@@ -2,7 +2,12 @@ from flask import Flask, jsonify, request
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import text
 from UserManagment import Users, db
-
+from clientManagement import Client
+from CasseManagement import Cases, CaseCategory, SubCategory
+from CompanyManagment import Company
+from AccountManagement import Banks, BankAccounts, BankBranches
+from query import get_all_Users
+from delete import delete_user
 
 app = Flask(__name__)
 
@@ -31,34 +36,11 @@ def hello():
 
 @app.route('/crb', methods=['GET'])
 def get_company_region_branches():
-    result = db.session.execute(
-        text('SELECT First_name, Last_name, User_email, User_id FROM Users')
-    )
-    rows = result.fetchall()
-    result_list = [
-        {
-            'First_name': row.First_name,
-            'User_id': row.User_Id,
-            'Last_name': row.Last_name,
-            'User_email': row.User_Email
-        } for row in rows
-    ]
-    return jsonify(result_list)
+    return get_all_Users()
 
 @app.route('/data')
 def getdata():
-    user = Users.query.all()
-    output = []
-    for u in user:
-        user_data = {
-            'First_name': u.First_name,
-            'Last_name': u.Last_name,
-            'User_email': u.User_Email,
-            'Phone_number':u.Phone_number,
-            'status':u.Status
-        }
-        output.append(user_data)
-    return {"data": output}
+    return get_all_Users()
 
 @app.route('/data/<id>')
 def get_data_by_id(id):
@@ -88,10 +70,7 @@ def create_user():
 
 @app.route('/delete/<id>', methods=['DELETE'])
 def delete(id):
-    user = Users.query.get_or_404(id)
-    db.session.delete(user)
-    db.session.commit()
-    return jsonify({"success": "Successfully Deleted"})
+    return delete_user(id)
 
 if __name__ == '__main__':
     with app.app_context():
