@@ -1,14 +1,13 @@
 from flask import Flask, jsonify, request
-from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS  # Add this line
-from sqlalchemy import text
-from UserManagment import Users, db
+from UserManagment import Users, db, update_user, create_user
 from clientManagement import Client
 from CasseManagement import Cases, CaseCategory, SubCategory
 from CompanyManagment import Company
 from AccountManagement import Banks, BankAccounts, BankBranches
-from query import get_all_Users
+from query import get_all_Users, get_all_Company_Region_View, get_all_cases
 from delete import delete_user
+from companyRegionBranches import CompanyRegionBranchView
 
 app = Flask(__name__)
 CORS(app)  # Add this line
@@ -36,29 +35,30 @@ def get_data_by_id(id):
     return {'First_name': user.First_name, 'Last_name': user.Last_name, 'User_email': user.User_Email}
 
 @app.route('/data', methods=['POST'])
-def create_user():
-    data = request.get_json()
-    First_name = data.get('first_name')
-    Last_name = data.get('last_name')
-    User_Email = data.get('email')
-    Phone_number = data.get('phone')
-
-    if not First_name or not Last_name or not User_Email:
-        return jsonify({'error': 'Missing required parameters'}), 400
-
-    user = Users(First_name=First_name, Last_name=Last_name, User_Email=User_Email, Phone_number=Phone_number)
+def Create_user():
+    return create_user()
     
-    try:
-        db.session.add(user)
-        db.session.commit()
-        return jsonify({'message': 'User created successfully'}), 201
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({'error': str(e)}), 500
+
+@app.route('/update/<user_id>', methods=['PUT'])
+def Update_User(user_id):
+    return update_user(user_id)
 
 @app.route('/delete/<id>', methods=['DELETE'])
 def delete(id):
     return delete_user(id)
+
+#### company Branches
+@app.route('/company')
+def getCompanyRegionView():
+    return get_all_Company_Region_View()
+
+
+
+# Getting allcases
+@app.route('/cases')
+def get_all_Cases():
+    return get_all_cases()
+
 
 if __name__ == '__main__':
     with app.app_context():

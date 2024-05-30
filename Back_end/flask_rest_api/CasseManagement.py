@@ -22,7 +22,7 @@ class CaseCategory(db.Model):
 class SubCategory(db.Model):
     __tablename__ = "SubCategory"
     Id = db.Column(db.Integer, primary_key=True)
-    Category = db.Column(db.String(256), nullable=True)
+    Subcategory = db.Column(db.String(256), nullable=True)
 
     cases = db.relationship("Cases", back_populates="subcategory")
 
