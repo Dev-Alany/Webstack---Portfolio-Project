@@ -70,7 +70,7 @@ function Users() {
     }
   };
 
-  const handleAddUser = () => {
+  const handleAddCase = () => {
     setIsEditing(false);
     setEditData(null);
     if (isMobile) {
@@ -88,18 +88,18 @@ function Users() {
         case "edit":
           handleEdit(id);
           break;
-        case "activate":
-          await userManagementClient.post(`/activate/${id}`);
-          swal("Success!", "User has been activated successfully", "success");
-          break;
+        // case "activate":
+        //   await userManagementClient.post(`/activate/${id}`);
+        //   swal("Success!", "User has been activated successfully", "success");
+        //   break;
         case "deactivate":
           await userManagementClient.post(`/delete/${id}`);
           swal("Success!", "User has been deactivated successfully", "success");
           break;
-        case "resetpassword":
-          await userManagementClient.post(`/resetpassword/${id}`);
-          swal("Success!", "User password has been reset successfully", "success");
-          break;
+        // case "resetpassword":
+        //   await userManagementClient.post(`/resetpassword/${id}`);
+        //   swal("Success!", "User password has been reset successfully", "success");
+        //   break;
         default:
           break;
       }
@@ -163,14 +163,14 @@ function Users() {
                 <EditIcon />
                 <Typography variant="body1">Edit</Typography>
               </MenuItem>
-              <MenuItem value={isActive === 1 ? "deactivate" : "activate"}>
+              {/* <MenuItem value={isActive === 1 ? "deactivate" : "activate"}>
                 <IconButton>{buttonIcon}</IconButton>
                 <Typography variant="body1">{buttonText}</Typography>
-              </MenuItem>
-              <MenuItem value="resetpassword">
+              </MenuItem> */}
+              {/* <MenuItem value="resetpassword">
                 <LockResetRounded />
                 <Typography variant="body1">Reset Password</Typography>
-              </MenuItem>
+              </MenuItem> */}
               <MenuItem value="delete">
                 <IconButton onClick={() => handleDelete(id)}>
                   <BlockIcon />
@@ -226,10 +226,10 @@ function Users() {
               backgroundColor: colors.greenAccent[500],
               borderRadius: "4px",
             }}
-            onClick={handleAddUser}
+            onClick={handleAddCase}
           >
             <Typography sx={{ color: colors.primary[400], mx: 1 }}>
-              Add User
+              Add Case
             </Typography>
           </Button>
         </Box>

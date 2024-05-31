@@ -18,95 +18,54 @@ import { useTheme } from "@emotion/react";
 import { tokens } from "../../theme";
 import Header from "../../components/Header";
 import AnchorTemporaryDrawer from "../../components/Drawer";
-import { graphqlQuery } from "../Axios/DynamicService";
 import { useNavigate } from "react-router-dom";
 import AssignTaskModal from "../../scenes/CaseManagement/CaseDetails/CaseTasks/Modal";
 import { useDispatch } from "react-redux";
 import { UpdateDataToStore } from "../../store/Actions/CustomAction";
-import { Card, CardBody } from "react-bootstrap";
+import { userManagementClient } from "../../config";
+import { getAllUsers } from "../../api/userservice";
 
 const DynamicTable = ({
   title,
   subtitle,
   columns,
   FormComponent,
-  query,
   base_url,
   actions,
-  DataFromGetBy,
 }) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
-
   const dispatch = useDispatch();
-
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [user, setUsers] = useState(false);
   const [taskModalOpen, setTaskModalOpen] = useState(false);
   const [data, setData] = useState([]);
-  const [refreshTable, setRefreshTable] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
-  async function fetchAllData() {
-    try {
-      if (query && base_url) {
-        const data = await graphqlQuery(query, base_url);
-        if (data !== null) {
-          setData(data);
-        }
-      } else {
-        setData(DataFromGetBy);
-      }
-    } catch (error) {
-      console.error("Error fetching data:", error);
-      throw error;
-    }
-  }
+  const [refreshTable, setRefreshTable] = useState(false);
   useEffect(() => {
-    fetchAllData();
-  }, [query, base_url]);
+    fetchUsers();
+  }, []);
 
-  useEffect(() => {
-    if (refreshTable) {
-      fetchAllData();
-      setRefreshTable(false);
+  const fetchUsers = async () => {
+    try {
+      setLoading(true);
+      const data = await getAllUsers(base_url);
+      setUsers(data.data); // Adjust based on your API response structure
+    } catch (err) {
+      setError(err);
+    } finally {
+      setLoading(false);
     }
-  }, [refreshTable]);
-  const columnsWithActions = [
-    ...columns,
-    {
-      field: "actions",
-      headerName: "Actions",
-      flex: 1,
-      renderCell: ({ row }) => (
-        <Box>
-          <Select
-            value=""
-            displayEmpty
-            onChange={(e) => handleAction(e.target.value, row.id, row)}
-          >
-            <MenuItem value="" disabled>
-              Actions
-            </MenuItem>
-            {Object.keys(actions)
-              .filter(
-                (action) => action !== "add" && actions[action].Show_Button
-              ) // Exclude "add" action and actions with Show_Button false
-              .map(
-                (action) =>
-                  actions[action] && ( // Check if the action is defined
-                    <MenuItem key={actions[action].key} value={action}>
-                      {actions[action].button_name}
-                    </MenuItem>
-                  )
-              )}
-          </Select>
-        </Box>
-      ),
-    },
-  ];
+  };
+
+  if (loading) return <CircularProgress />;
+  if (error) return <p>Error: {error.message}</p>;
 
   const handleAdd = () => {
     setIsEditing(false);
@@ -117,11 +76,13 @@ const DynamicTable = ({
       setDrawerOpen(true);
     }
   };
+
   const handleOpenTaskModal = (id) => {
     const itemToEdit = data.find((item) => item.id === id);
     setTaskModalOpen(true);
     setEditData(itemToEdit);
   };
+
   const handleEdit = (id) => {
     const itemToEdit = data.find((item) => item.id === id);
     setEditData(itemToEdit);
@@ -132,6 +93,7 @@ const DynamicTable = ({
       setDrawerOpen(true);
     }
   };
+
   const handleAction = async (action, id, row) => {
     switch (action) {
       case "edit":
@@ -154,12 +116,46 @@ const DynamicTable = ({
         break;
     }
   };
+
+  const columnsWithActions = [
+    ...columns,
+    {
+      field: "actions",
+      headerName: "Actions",
+      flex: 1,
+      renderCell: ({ row }) => (
+        <Box>
+          <Select
+            value=""
+            displayEmpty
+            onChange={(e) => handleAction(e.target.value, row.id, row)}
+          >
+            <MenuItem value="" disabled>
+              Actions
+            </MenuItem>
+            {Object.keys(actions)
+              .filter(
+                (action) => action !== "add" && actions[action].Show_Button
+              )
+              .map(
+                (action) =>
+                  actions[action] && (
+                    <MenuItem key={actions[action].key} value={action}>
+                      {actions[action].button_name}
+                    </MenuItem>
+                  )
+              )}
+          </Select>
+        </Box>
+      ),
+    },
+  ];
+
   return (
     <Box m="20px">
       <Box
         height="75vh"
         m="40px 0 0 0"
-        // width="100%"
         sx={{
           "& .MuiDataGrid-root": {
             border: "none",
@@ -200,12 +196,12 @@ const DynamicTable = ({
             <Box display="flex" justifyContent="flex-end" mt={1}>
               <Button
                 variant="contained"
-                size={isMobile ? "small" : "medium"} // Use "small" for small screens and "medium" for others
+                size={isMobile ? "small" : "medium"}
                 sx={{
                   backgroundColor: colors.greenAccent[500],
                   borderRadius: "4px",
-                  padding: isMobile ? "4px 8px" : "8px 16px", // Adjust padding based on screen size
-                  minWidth: isMobile ? "auto" : "64px", // Adjust minWidth for small screens
+                  padding: isMobile ? "4px 8px" : "8px 16px",
+                  minWidth: isMobile ? "auto" : "64px",
                 }}
                 onClick={() => handleAction("add")}
               >
@@ -216,13 +212,23 @@ const DynamicTable = ({
             </Box>
           )}
         </Box>
-        <DataGrid
-          checkboxSelection
-          rows={data || DataFromGetBy || null}
-          columns={columnsWithActions}
-          components={{ Toolbar: GridToolbar }}
-          sx={{ minWidth: isMobile ? "auto" : "900px", width: "100%" }}
-        />
+        {loading ? (
+          <Box display="flex" justifyContent="center" mt={2}>
+            <CircularProgress />
+          </Box>
+        ) : error ? (
+          <Typography color="error" align="center">
+            Error loading data
+          </Typography>
+        ) : (
+          <DataGrid
+            checkboxSelection
+            rows={data}
+            columns={columnsWithActions}
+            components={{ Toolbar: GridToolbar }}
+            sx={{ minWidth: isMobile ? "auto" : "900px", width: "100%" }}
+          />
+        )}
         {taskModalOpen && (
           <AssignTaskModal
             data={editData}
@@ -231,7 +237,6 @@ const DynamicTable = ({
             onAction={() => setRefreshTable(true)}
           />
         )}
-
         <AnchorTemporaryDrawer
           anchor="right"
           open={drawerOpen}
@@ -266,7 +271,7 @@ const DynamicTable = ({
               <FormComponent
                 onClick={() => setDialogOpen(false)}
                 isEditing={isEditing}
-                courtData={editData}
+                data={editData}
               />
             </DialogContent>
           </Dialog>

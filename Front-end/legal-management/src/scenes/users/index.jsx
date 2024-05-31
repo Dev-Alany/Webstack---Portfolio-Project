@@ -47,7 +47,7 @@ function Users() {
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const data = await getAllUsers();
+      const data = await getAllUsers("data");
       setUsers(data.data); // Adjust based on your API response structure
     } catch (err) {
       setError(err);

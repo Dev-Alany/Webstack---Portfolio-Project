@@ -38,7 +38,7 @@ export const setupManagementUrl = {
   uri: "https://sheriapro.mcb.co.ke/gateway/setupmanagement",
 };
 export const clientManagementUrl = {
-  uri: "https://sheriapro.mcb.co.ke/gateway/clientmanagement",
+  uri: "http://127.0.0.1:5000/clientManagement",
 };
 export const userManagementUrl = {
   uri: "http://127.0.0.1:5000/data",

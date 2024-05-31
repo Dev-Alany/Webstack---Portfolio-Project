@@ -96,12 +96,11 @@ export const JudgeAssignmentViewsColumns = [
 
 
 export const CorporateClientsColumns = [
-  { field: "id", headerName: "Client ID", flex: 1 },
-  { field: "contactNumber", headerName: "Contact Number", flex: 1 },
-  { field: "email", headerName: "Email", flex: 1 },
-  { field: "address", headerName: "Address", flex: 1 },
-  { field: "companyName", headerName: "Company Name", flex: 1 },
-  { field: "industrySector", headerName: "Industry Sector", flex: 1 },
+  { field: "User_Id", type: "number", headerName: "ID", flex: 0.5 },
+  { field: "Username", headerName: "Username", flex: 0.5 },
+  { field: "First_name", headerName: "First Name", flex: 0.5 },
+  { field: "Last_name", headerName: "Last Name", flex: 0.5 },
+  { field: "User_email", headerName: "Email", flex: 0.5 },
 ];
 
 export const IndividualClientsColumns = [
@@ -115,6 +114,5 @@ export const IndividualClientsColumns = [
 export const AccountTypesColumns = [
   { field: "id", headerName: "ID", flex: 0.5 },
   { field: "accountType", headerName: "Account Type", flex: 1 },
-
 ];
 

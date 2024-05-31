@@ -1,9 +1,9 @@
 // src/api/userService.js
 import { userManagementClient } from "../config";
 
-export const getAllUsers = async () => {
+export const getAllUsers = async (name) => {
   try {
-    const response = await userManagementClient.get("/data");
+    const response = await userManagementClient.get(`/${name}`);
     return response.data;
   } catch (error) {
     console.error("Error fetching users: ", error);
@@ -15,10 +15,20 @@ export const getAllCompanyRegionView = async () => {
       const response = await userManagementClient.get("/company");
       return response.data;
     } catch (error) {
-      console.error("Error fetching users: ", error);
+      console.error("Error fetching company: ", error);
       throw error;
     }
   };
+  export const getAllclientManagementView = async () => {
+    try {
+      const response = await userManagementClient.get("/http://127.0.0.1:5000/clientManagement");
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching Client: ", error);
+      throw error;
+    }
+  };
+
 
   export const getallCases = async () => {
     try {

@@ -1,10 +1,12 @@
+import React from "react";
 import { Box } from "@mui/material";
 import DynamicTable from "../../../data/DynamicTable/dynamicTable";
-import { allCorporateClients } from "../../../data/Axios/queries";
 import { clientManagementUrl } from "../../../config";
 import CorporateClientsForm from "./form";
 import { CorporateClientsColumns } from "../../../data/DynamicTable/Collumns";
+
 const base_url = clientManagementUrl.uri;
+
 const actions = {
   edit: {
     key: "EDIT",
@@ -27,16 +29,16 @@ const actions = {
     Show_Button: false,
   },
 };
+
 function CorporateClients() {
   return (
-    <Box m="2px">
+    <Box m="20px">
       <DynamicTable
         title="Corporate Clients"
-        subtitle="View all Corporate Clients, create edit or view details"
+        subtitle="View all Corporate Clients, create, edit, or view details"
         columns={CorporateClientsColumns}
         FormComponent={CorporateClientsForm}
-        query ={allCorporateClients}
-        base_url={base_url}
+        base_url={"data"}
         actions={actions}
       />
     </Box>
