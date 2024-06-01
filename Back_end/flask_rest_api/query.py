@@ -52,3 +52,21 @@ def get_all_cases():
 
                 output.append(Cases_data)
         return {"data": output}
+
+def get_all_ClientManagementView():
+        sql=text('select * from ClientManagementView;')
+        allClientManagementView=db.session.execute(sql)
+        output = []
+        for u in allClientManagementView:
+                ClientManagementViewdata = {
+                        'id':u.Id,
+                        # 'CompanyName':u.CompanyName,
+                        'IndustrySector': u.IndustrySector,
+                        'Client_Type': u.Client_Type,
+                        'CompanyName': u.CompanyName,
+                        'Address':u.Address,
+                        'Email':u.Email
+                }
+
+                output.append(ClientManagementViewdata)
+        return {"data": output}

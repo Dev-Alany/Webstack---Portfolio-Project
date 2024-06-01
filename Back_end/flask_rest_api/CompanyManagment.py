@@ -8,3 +8,9 @@ class Company(db.Model):
         
 
         Client=db.relationship("Client", back_populates="Company")
+
+class IndustrySector(db.Model):
+        __tablename__="IndustrySector"
+        Id=db.Column(db.Integer, primary_key=True)
+        Sector_name=db.Column(db.String(256), nullable=True)
+        

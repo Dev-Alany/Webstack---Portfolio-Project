@@ -1,14 +1,15 @@
 from flask import Flask, jsonify, request
 from flask_cors import CORS  # Add this line
-from UserManagment import Users, db, update_user, create_user
+from UserManagment import Users, db
 from clientManagement import Client
 from CasseManagement import Cases, CaseCategory, SubCategory
-from CompanyManagment import Company
+from CompanyManagment import Company, IndustrySector
 from AccountManagement import Banks, BankAccounts, BankBranches
-from query import get_all_Users, get_all_Company_Region_View, get_all_cases
+from query import get_all_Users, get_all_Company_Region_View, get_all_cases, get_all_ClientManagementView
 from delete import delete_user
 from companyRegionBranches import CompanyRegionBranchView
-
+from mutation import create_user
+from update import update_user
 app = Flask(__name__)
 CORS(app)  # Add this line
 
@@ -59,6 +60,11 @@ def getCompanyRegionView():
 def get_all_Cases():
     return get_all_cases()
 
+
+# client Management
+@app.route('/clientManagement')
+def all_ClientManagementView():
+    return get_all_ClientManagementView()
 
 if __name__ == '__main__':
     with app.app_context():
