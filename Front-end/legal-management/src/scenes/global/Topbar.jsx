@@ -1,4 +1,4 @@
-import { useEffect, useState, useContext} from "react";
+import { useEffect, useState, useContext } from "react";
 import {
   Box,
   IconButton,
@@ -103,11 +103,12 @@ const Topbar = () => {
             top: '50%',
             left: '50%',
             transform: 'translate(-50%, -50%)',
-            width: 400,
-            bgcolor: 'background.paper',
+            width: '100%',
+            bgcolor: `${colors.greenAccent[400]}`,
             border: '2px solid #000',
             boxShadow: 24,
             p: 4,
+            height:'100vh',
           }}
         >
           <Typography variant="h6" component="h2">
@@ -115,17 +116,17 @@ const Topbar = () => {
           </Typography>
           {user ? (
             <>
-              <Typography sx={{ mt: 2 }}>
+              <Typography sx={{ mt: 2, variant:'h2'}}>
                 <strong>Username:</strong> {user.Username}
               </Typography>
-              <Typography sx={{ mt: 2 }}>
-                <strong>Email:</strong> {user.email}
+              <Typography sx={{ mt: 2 , color:colors.grey[100]}}>
+                <strong>Email:</strong> {user.User_email}
               </Typography>
               <Typography sx={{ mt: 2 }}>
-                <strong>First Name:</strong> {user.first_name}
+                <strong>First Name:</strong> {user.First_name}
               </Typography>
               <Typography sx={{ mt: 2 }}>
-                <strong>Last Name:</strong> {user.last_name}
+                <strong>Last Name:</strong> {user.Last_name}
               </Typography>
               <Typography sx={{ mt: 2 }}>
                 <strong>Status:</strong> {user.status}
