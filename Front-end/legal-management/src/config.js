@@ -25,8 +25,8 @@ const createAxiosInstance = (baseURL) => {
 
 export const userManagementClient = createAxiosInstance("http://127.0.0.1:5000");
 
-export const loginUrl = {
-  login: "https://sheriapro.mcb.co.ke/gateway/login",
+export const login = {
+  login: "http://127.0.0.1:5000/login/",
 };
 export const roleManagementUrl = {
   uri: "https://sheriapro.mcb.co.ke/gateway/rolemanagement",

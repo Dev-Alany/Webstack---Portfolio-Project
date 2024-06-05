@@ -12,7 +12,8 @@ class Users(db.Model):
     User_Email = db.Column(db.String(256), nullable=True)
     Phone_number = db.Column(db.String(256), nullable=True)
     Status = db.Column(db.String(50), default="Active")
-
+    password = db.Column(db.String(256), nullable=False)
+    
     def __repr__(self):
         return f'{self.First_name}'
 

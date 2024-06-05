@@ -1,5 +1,6 @@
 from flask import Flask, jsonify, request
-from flask_cors import CORS  # Add this line
+from flask_cors import CORS
+from werkzeug.security import check_password_hash
 from UserManagment import Users, db
 from clientManagement import Client
 from CasseManagement import Cases, CaseCategory, SubCategory
@@ -10,6 +11,8 @@ from delete import delete_user
 from companyRegionBranches import CompanyRegionBranchView
 from mutation import create_user
 from update import update_user
+from signin import SignIn
+
 app = Flask(__name__)
 CORS(app)  # Add this line
 
@@ -21,6 +24,10 @@ db.init_app(app)
 @app.route('/')
 def hello():
     return '<h1>Hello, World!</h1>'
+
+@app.route('/login', methods=['POST'])
+def login():
+    return SignIn()
 
 @app.route('/crb', methods=['GET'])
 def get_company_region_branches():
@@ -48,20 +55,14 @@ def Update_User(user_id):
 def delete(id):
     return delete_user(id)
 
-#### company Branches
 @app.route('/company')
 def getCompanyRegionView():
     return get_all_Company_Region_View()
 
-
-
-# Getting allcases
 @app.route('/cases')
 def get_all_Cases():
     return get_all_cases()
 
-
-# client Management
 @app.route('/clientManagement')
 def all_ClientManagementView():
     return get_all_ClientManagementView()

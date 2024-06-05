@@ -12,16 +12,17 @@ import Grid from "@mui/material/Grid";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Typography from "@mui/material/Typography";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
-import { useNavigate } from "react-router-dom";
-import { PulseLoader } from "react-spinners"; // Importing the loader
+import { useNavigate, Link as RouterLink } from "react-router-dom";
+import { PulseLoader } from "react-spinners";
 import meinInSuits from "../../Assets/Images/MenInSuits.jpg";
-import { jwtDecode } from "jwt-decode";
-import { loginCallApi } from "../../data/userData";
+import { loginCallApi } from "../../api/userservice";
 import swal from "sweetalert";
+import {jwtDecode} from "jwt-decode";
 
 function saveTokenToStorage(decodedToken) {
-  localStorage.setItem("decodedToken", JSON.stringify(decodedToken)); // Example: Using local storage
+  localStorage.setItem("decodedToken", JSON.stringify(decodedToken));
 }
+
 async function saveDataToLocalStorage(response) {
   const token = response.data.token;
   localStorage.setItem("token", JSON.stringify(token));
@@ -30,88 +31,48 @@ async function saveDataToLocalStorage(response) {
   saveTokenToStorage(decodedToken);
 }
 
-function Copyright(props) {
-  return (
-    <Typography
-      variant="body2"
-      color="text.secondary"
-      align="center"
-      {...props}
-    >
-      {"Copyright © "}
-      <Link color="inherit" href="https://mui.com/">
-        Sheria Pro
-      </Link>{" "}
-      {new Date().getFullYear()}
-      {"."}
-    </Typography>
-  );
-}
-
-// TODO remove, this demo shouldn't need to reset the theme.
-const defaultTheme = createTheme();
-
-export default function SignInSide({ onLogin }) {
+function SignInSide({ onLogin }) {
   const navigate = useNavigate();
-  const [loading, setLoading] = React.useState(false); // Adding a loading state
-  // const handleSubmit = async (event) => {
-  //   navigate("/teams");
-  // }
+  const [loading, setLoading] = React.useState(false);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    const formData = new FormData(event.currentTarget);
-    const username = "devalanyi"; //formData.get("email");
-    const HashedPassword = "Nigri01"; //formData.get("HashedPassword");
-
-    setLoading(true); // Set loading to true when the request starts
+    setLoading(true);
 
     try {
-      const response = await loginCallApi(username, HashedPassword);
-      if (response === "ERR_NETWORK") {
-        throw new Error(
-          "Network error. Please check your internet connection and try again!"
-        );
-      }
-      if (response === "ERR_BAD_RESPONSE" || response === "ERR_BAD_REQUEST") {
-        swal("Error!", "Invalid credentials, Kindly check your username or password", "error");
-      }
-      if (response.status === 200) {
-        if (response.data.changepassword === 1) {
-          navigate("/changepassword");
-          return;
-        }
-        else {
-          // const token = response.data.token;
-          // localStorage.setItem("token", JSON.stringify(token));
-          // localStorage.setItem("rights", JSON.stringify(response.data.rights));// Assuming the token is in response.data
-          // const decodedToken = jwtDecode(token);
-          // saveTokenToStorage(decodedToken);
-          // onLogin();
-          // navigate("/super-admin-dashboard");
-           saveDataToLocalStorage(response)
-          .then(() => {
-            onLogin();
-            navigate("/super-admin-dashboard");
-          })
-          .catch(error => {
-            console.error("Login error: ", error);
-            // Handle the error (e.g., show a message to the user)
-          });
-                  
-        }
-      } else {
+      const formData = new FormData(event.currentTarget);
+      const Username = formData.get("Username");
+      const password = formData.get("password");
+
+      const response = await loginCallApi(Username, password);
+
+      if (response.status === 400) {
+        swal("Error!", "Missing username or password", "error");
+      } else if (response.status === 401) {
+        swal("Error!", "Invalid Password or You're Blocked", "error");
+      } else if (response.status === 200) {
+        // if (response.data.changepassword === 1) {
+        //   navigate("/changepassword");
+        // } else {
+        //   await saveDataToLocalStorage(response);
+        //   onLogin();
+        //   navigate("/super-admin-dashboard");
+        // }
+        navigate("/super-admin-dashboard")
+      } 
+      else {
+        swal("Error!", "Invalid Username", "error");
       }
     } catch (error) {
       console.error("Error:", error);
-      // Handle error
+      swal("Error!", "An unexpected error occurred", "error");
     } finally {
-      setLoading(false); // Set loading to false when the request is finished
+      setLoading(false);
     }
   };
 
   return (
-    <ThemeProvider theme={defaultTheme}>
+    <ThemeProvider theme={createTheme()}>
       {loading && (
         <Box
           sx={{
@@ -176,7 +137,7 @@ export default function SignInSide({ onLogin }) {
                 fullWidth
                 id="email"
                 label="Email Address"
-                name="email"
+                name="Username"
                 autoComplete="email"
                 autoFocus
               />
@@ -184,7 +145,7 @@ export default function SignInSide({ onLogin }) {
                 margin="normal"
                 required
                 fullWidth
-                name="HashedPassword"
+                name="password"
                 label="Password"
                 type="password"
                 id="HashedPassword"
@@ -199,23 +160,32 @@ export default function SignInSide({ onLogin }) {
                 fullWidth
                 variant="contained"
                 sx={{ mt: 3, mb: 2 }}
-                disabled={loading} // Disable the button while loading
+                disabled={loading}
               >
                 Sign In
               </Button>
               <Grid container>
                 <Grid item xs>
-                  <Link href="#" variant="body2">
+                  <Link component={RouterLink} to="/forgot-password" variant="body2">
                     Forgot password?
                   </Link>
                 </Grid>
                 <Grid item>
-                  <Link href="#" variant="body2">
+                  <Link component={RouterLink} to="/sign-up" variant="body2">
                     {"Don't have an account? Sign Up"}
                   </Link>
                 </Grid>
               </Grid>
-              <Copyright sx={{ mt: 5 }} />
+              <Box mt={5}>
+                <Typography variant="body2" color="text.secondary" align="center">
+                  {"Copyright © "}
+                  <Link color="inherit" href="https://mui.com/">
+                    Sheria Pro
+                  </Link>{" "}
+                  {new Date().getFullYear()}
+                  {"."}
+                </Typography>
+              </Box>
             </Box>
           </Box>
         </Grid>
@@ -223,3 +193,5 @@ export default function SignInSide({ onLogin }) {
     </ThemeProvider>
   );
 }
+
+export default SignInSide;
