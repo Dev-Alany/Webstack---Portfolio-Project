@@ -13,7 +13,7 @@ from update import update_user
 app = Flask(__name__)
 CORS(app)  # Add this line
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://bethwel:KK@localhost/BETH'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:heman2838@localhost/legalManagementSystem'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db.init_app(app)
