@@ -9,8 +9,11 @@ def SignIn():
 
     user = Users.query.filter_by(Username=Username).first()
 
+    if user.Status != "Active":
+        return jsonify({"message":"You are blocked"}), 401
 
-    if user.Username != Username or user.password != password:
+
+    if user.Username != Username and user.password != password:
         if user.Username != Username:
             return jsonify({"message": "Invalid Username"}), 401
         else:

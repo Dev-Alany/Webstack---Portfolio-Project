@@ -49,7 +49,7 @@ function SignInSide({ onLogin }) {
       if (response.status === 400) {
         swal("Error!", "Missing username or password", "error");
       } else if (response.status === 401) {
-        swal("Error!", "Invalid Password", "error");
+        swal("Error!", "Invalid Password or You're Blocked", "error");
       } else if (response.status === 200) {
         // if (response.data.changepassword === 1) {
         //   navigate("/changepassword");
