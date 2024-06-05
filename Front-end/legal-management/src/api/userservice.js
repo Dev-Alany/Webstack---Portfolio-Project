@@ -1,6 +1,28 @@
 // src/api/userService.js
 import { userManagementClient } from "../config";
 
+import axios from 'axios';
+
+
+export const loginCallApi = async (Username, password) => {
+  try {
+    const response = await axios.post('http://localhost:5000/login', {
+      Username,
+      password
+    });
+    return response;
+  } catch (error) {
+    if (error.response) {
+      return error.response;
+    } else if (error.request) {
+      return 'ERR_NETWORK';
+    } else {
+      return 'ERR_BAD_REQUEST';
+    }
+  }
+};
+
+
 export const getAllUsers = async (name) => {
   try {
     const response = await userManagementClient.get(`/${name}`);
