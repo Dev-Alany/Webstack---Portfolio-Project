@@ -56,11 +56,22 @@ function Users() {
     }
   };
 
-  if (loading) return <CircularProgress />;
+  if (loading) return;
+  // <CircularProgress />
+  <Box
+    sx={{
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      height: "100vh",
+    }}
+  >
+    <PulseLoader size={10} color={"#3f51b5"} />
+  </Box>;
   if (error) return <p>Error: {error.message}</p>;
 
-  const handleEdit = (id) => {
-    const userToEdit = users.find((user) => user.id === id);
+  const handleEdit = (User_Id) => {
+    const userToEdit = users.find((user) => user.User_Id === User_Id);
     setEditData(userToEdit);
     setIsEditing(true);
     if (isMobile) {
@@ -80,24 +91,24 @@ function Users() {
     }
   };
 
-  const handleActionSelect = async (event, id) => {
+  const handleActionSelect = async (event, User_Id) => {
     const action = event.target.value;
-
+  
     try {
       switch (action) {
         case "edit":
-          handleEdit(id);
+          handleEdit(User_Id);
           break;
         case "activate":
-          await userManagementClient.post(`/activate/${id}`);
+          await userManagementClient.post(`/activate/${User_Id}`);
           swal("Success!", "User has been activated successfully", "success");
           break;
         case "deactivate":
-          await userManagementClient.post(`/delete/${id}`);
+          await userManagementClient.post(`/delete/${User_Id}`);
           swal("Success!", "User has been deactivated successfully", "success");
           break;
         case "resetpassword":
-          await userManagementClient.post(`/resetpassword/${id}`);
+          await userManagementClient.post(`/resetpassword/${User_Id}`);
           swal("Success!", "User password has been reset successfully", "success");
           break;
         default:
@@ -109,7 +120,7 @@ function Users() {
       swal("Error!", "Unable to complete the action, try again later", "error");
     }
   };
-
+  
   const handleFormSubmit = async (user) => {
     try {
       if (isEditing) {
@@ -126,9 +137,9 @@ function Users() {
     }
   };
 
-  const handleDelete = async (id) => {
+  const handleDelete = async (User_Id) => {
     try {
-      await deleteUser(id);
+      await deleteUser(User_Id);
       fetchUsers();
     } catch (error) {
       swal("Error!", "Unable to delete the user, try again later", "error");
@@ -159,7 +170,7 @@ function Users() {
       field: "actions",
       headerName: "Actions",
       flex: 1,
-      renderCell: ({ row: { id, isActive } }) => {
+      renderCell: ({ row: { User_Id, isActive } }) => {
         const buttonText = isActive === 1 ? "Deactivate" : "Activate";
         const buttonIcon = isActive === 1 ? <BlockIcon /> : <CheckCircleOutline />;
 
@@ -167,7 +178,7 @@ function Users() {
           <Box>
             <Select
               value=""
-              onChange={(e) => handleActionSelect(e, id)}
+              onChange={(e) => handleActionSelect(e, User_Id)}
               displayEmpty
             >
               <MenuItem value="" disabled>
@@ -186,7 +197,7 @@ function Users() {
                 <Typography variant="body1">Reset Password</Typography>
               </MenuItem>
               <MenuItem value="delete">
-                <IconButton onClick={() => handleDelete(id)}>
+                <IconButton onClick={() => handleDelete(User_Id)}>
                   <BlockIcon />
                 </IconButton>
                 <Typography variant="body1">Delete</Typography>

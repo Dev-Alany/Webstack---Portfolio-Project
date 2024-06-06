@@ -28,14 +28,17 @@ export const userManagementClient = createAxiosInstance("http://127.0.0.1:5000")
 export const login = {
   login: "http://127.0.0.1:5000/login/",
 };
+export const notificationservice = {
+  uri: "",
+};
 export const roleManagementUrl = {
-  uri: "https://sheriapro.mcb.co.ke/gateway/rolemanagement",
+  uri: "",
 };
 export const caseManagementUrl = {
-  uri: "https://sheriapro.mcb.co.ke/gateway/casemanagement",
+  uri: "",
 };
 export const setupManagementUrl = {
-  uri: "https://sheriapro.mcb.co.ke/gateway/setupmanagement",
+  uri: "",
 };
 export const clientManagementUrl = {
   uri: "http://127.0.0.1:5000/clientManagement",
@@ -44,12 +47,11 @@ export const userManagementUrl = {
   uri: "http://127.0.0.1:5000/data",
 };
 export const accountsAndFinanceUrl = {
-  uri: "https://sheriapro.mcb.co.ke/gateway/accountsmanagement",
+  uri: "",
 };
 export const documentUploadUrl = {
-  uri: "https://localhost:7294/documentmanagement/UploadCaseDocument",
-  // uri: "https://sheriapro.mcb.co.ke/gateway/documentmanagement/UploadCaseDocument",
+  uri: "",
 };
 export const companyManagementUrl = {
-  uri: "https://sheriapro.mcb.co.ke/gateway/companymanagement",
+  uri: "",
 };

@@ -1,3 +1,5 @@
+import { userManagementClient } from "../../config";
+
 export const getrolesquery = `
    {
     allRoles {
@@ -599,3 +601,15 @@ export const allStorageUnits = `
 }
 
 `;
+
+
+
+export const notificationCount = async (user) => {
+  try {
+    const response = await userManagementClient.post("/data", user);
+    return response.data;
+  } catch (error) {
+    console.error("Error creating user: ", error);
+    throw error;
+  }
+};

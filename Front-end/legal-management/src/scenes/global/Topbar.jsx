@@ -6,6 +6,13 @@ import {
   useMediaQuery,
   Modal,
   Typography,
+  Badge,
+  Stack,
+  Popover,
+  List,
+  ListItem,
+  Divider,
+  ListItemText,
 } from "@mui/material";
 import { ColorModeContext, tokens } from "../../theme";
 import InputBase from "@mui/material/InputBase";
@@ -18,6 +25,8 @@ import SearchIcon from "@mui/icons-material/Search";
 import LogoutOutlinedIcon from "@mui/icons-material/LogoutOutlined";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { notificationservice } from "../../config";
+import { notificationCount } from "../../data/Axios/queries";
 
 const Topbar = () => {
   const theme = useTheme();
@@ -33,6 +42,47 @@ const Topbar = () => {
   ]); // Initialize items with your array of items
   const [open, setOpen] = useState(false);
   const [user, setUser] = useState(null); // State to hold user data
+  const [notifications, setNotifications] = useState([]);
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [anchorEl, setAnchorEl] = useState(null);
+
+  // useEffect(() => {
+  //   let isMounted = true;
+  //   async function fetchAllData() {
+  //     try {
+  //       if (isMounted) {
+  //         const notificationsResponse = await graphqlQuery(
+  //           notificationsAndCount,
+  //           notificationservice.uri
+  //         );
+  //         if (notificationsResponse) {
+  //           setNotifications(notificationsResponse);
+  //         }
+  //       }
+  //     } catch (error) {
+  //       console.error("Error fetching data:", error);
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   }
+  //   fetchAllData();
+  //   return () => {
+  //     isMounted = false;
+  //   };
+  // }, []);
+  const fetchUsers = async () => {
+    try {
+      setLoading(true);
+      const notificationsResponse = await notificationCount("data");
+      setUsers(notificationsResponse.notificationsResponse); // Adjust based on your API response structure
+    } catch (err) {
+      setError(err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleLogout = () => {
     localStorage.clear();
@@ -60,6 +110,7 @@ const Topbar = () => {
   };
 
   const handleClose = () => setOpen(false);
+  const id = open ? "simple-popover" : undefined;
 
   return (
     <Box display="flex" justifyContent={isSmallScreen ? "space-evenly" : "space-between"} p={2}>
@@ -96,6 +147,57 @@ const Topbar = () => {
           <PersonOutlinedIcon />
         </IconButton>
       </Box>
+      <Popover
+        id={id}
+        open={open}
+        anchorEl={anchorEl}
+        onClose={() => setAnchorEl(null)}
+        anchorOrigin={{
+          vertical: "bottom",
+          horizontal: "left",
+        }}
+        transformOrigin={{
+          vertical: "top",
+          horizontal: "left",
+        }}
+      >
+        <Box
+          p={2}
+          sx={{
+            width: "300px",
+            borderRadius: "0.75rem",
+            borderRadius: "0.75rem",
+            bgcolor:
+              theme.palette.mode === "light"
+                ? colors.blueAccent[900]
+                : colors.grey[600],
+          }}
+        >
+          <Typography
+            sx={{
+              fontSize: 14,
+              color: colors.greenAccent[400],
+            }}
+            variant="h6"
+          >
+            Notifications
+          </Typography>
+          <List>
+            {notifications.notifications?.map((notification) => (
+              <div key={notification.notificationId}>
+                <ListItem>
+                  <ListItemText primary={notification.body} />
+                </ListItem>
+                <Divider
+                  sx={{
+                    color: colors.redAccent[400],
+                  }}
+                />
+              </div>
+            ))}
+          </List>
+        </Box>
+      </Popover>
       <Modal open={open} onClose={handleClose}>
         <Box
           sx={{

@@ -14,11 +14,11 @@ def update_user(user_id):
         return jsonify({'error': 'Missing required parameters'}), 400
 
     # Construct SQL update statement with placeholders
-    upuser = text("UPDATE Users SET First_name=:first_name, Last_name=:last_name, Phone_number=:phone_number WHERE User_Id=:user_id")
+    upuser = text("UPDATE Users SET First_name=:first_name, Last_name=:last_name, Phone_number=:phone_number, User_Email=:User_Email WHERE User_Id=:user_id")
 
     try:
         # Execute the SQL statement with parameters
-        db.session.execute(upuser, {'first_name': First_name, 'last_name': Last_name, 'phone_number': Phone_number, 'user_id': user_id})
+        db.session.execute(upuser, {'first_name': First_name, 'last_name': Last_name, 'phone_number': Phone_number, 'User_Email': User_Email, 'user_id': user_id})
         db.session.commit()
         return jsonify({'message': 'User updated successfully'}), 200
     except Exception as e:
