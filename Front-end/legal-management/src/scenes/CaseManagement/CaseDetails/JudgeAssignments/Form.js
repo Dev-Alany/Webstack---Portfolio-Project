@@ -1,182 +1,121 @@
-import React, { useState, useEffect } from "react";
-import {
-  Box,
-  Button,
-  TextField,
-  Select,
-  MenuItem,
-  Autocomplete,
-  InputLabel,
-  useMediaQuery,
-} from "@mui/material";
-import { Formik } from "formik";
-import * as yup from "yup";
-import Swal from "sweetalert2";
+import React from "react";
+import { useFormik } from "formik";
+import * as Yup from "yup";
+import { TextField, Button, CircularProgress, Box } from "@mui/material";
+import swal from "sweetalert";
+import { userManagementClient } from "../../../../config";
+import { useState } from "react";
 
-import Header from "../../../../components/Header";
-import { generateAndExecuteBulkMutation, graphqlQuery } from "../../../../data/Axios/DynamicService";
-import { caseManagementUrl, setupManagementUrl } from "../../../../config";
-import { allJudgesQuery } from "../../../../data/Axios/queries";
-import { getDateMeta } from "@fullcalendar/react";
-const JudgeAssignmentForm = (props) => {
-  const base_url = caseManagementUrl.uri;
-  const judges_url = setupManagementUrl.uri;
-  const [assignmentData, setAssignmentData] = useState([]);
-  const [judgesData, setJudgesData] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
+const UsersForm = (props) => {
+  const [loading, setLoading] = useState(false);
 
-  async function fetchAllData() {
-    try {
-      
-        const data = await graphqlQuery(allJudgesQuery, judges_url);
-        if (data !== null) {
-          setJudgesData(data);
-        }
-      
-    } catch (error) {
-      console.error("Error fetching data:", error);
-      throw error;
-    }
-  }
-  useEffect(() => {
-    fetchAllData();
-  }, []);
   const initialValues = {
-    judgeId: props.data ? props.data.judgeId : "",
+    first_name: props.userData ? props.userData.first_name : "",
+    last_name: props.userData ? props.userData.last_name : "",
+    email: props.userData ? props.userData.email : "",
+    phone: props.userData ? props.userData.phone : "",
   };
 
-  const validationSchema = yup.object().shape({
-    //userId: yup.number().required("user Type is required"),
+  const validationSchema = Yup.object({
+    first_name: Yup.string().required("First Name is required"),
+    last_name: Yup.string().required("Last Name is required"),
+    email: Yup.string().email("Invalid email format").required("Email is required"),
+    phone: Yup.string().required("Phone is required"),
   });
-  const caseIdFromSession = JSON.parse(localStorage.getItem("CaseId"));
 
-  const allJudgesOptions = judgesData
-    ? judgesData.map((data) => ({
-        parent_key: data.judgeId,
-        value: data.judgeId,
-        label: data.name,
-      }))
-    : [];
-  const decodedToken = JSON.parse(localStorage.getItem("decodedToken"));
-  const userIdFromSession = parseInt(decodedToken.Id);
-  const handleSubmit = async (values, { setSubmitting, resetForm }) => {
+  const handleSubmit = async (values, { setSubmitting }) => {
+    setLoading(true);
+    const { first_name, last_name, email, phone } = values;
+
     try {
-      const bulkData = [];
-
-      //values.assignments.forEach((assignment) => {
-        values.judgeId.forEach((judgeId) => {
-          const assignmentObject = {
-            caseId: caseIdFromSession,
-            judgeId: judgeId,
-            createdBy: userIdFromSession,
-            companyId: null,
-            company: null,
-          };
-
-          // Push the assignment object to the bulkData array
-          bulkData.push(assignmentObject);
+      if (props.isEditing) {
+        await userManagementClient.put(`/update/${props.userData.User_Id}`, {
+          first_name,
+          last_name,
+          email,
+          phone,
         });
-      //});
-
-      // Generate bulk mutation
-      const response = generateAndExecuteBulkMutation(
-        props.isEditing ? "updateJudgeAssignment" : "bulkCreateJudgeAssignments",
-        props.isEditing ? "newJudgeAssignment" : "newJudgeAssignments",
-        bulkData,
-        base_url
-      );
-
-      if (response) {
-        props.onAction();
-        resetForm();
-        Swal.fire({
-          icon: "success",
-          title: "Success!",
-          text: `JudgeAssignment ${
-            props.isEditing ? "updated" : "created"
-          } successfully.`,
+        swal("Success!", "User has been updated successfully", "success");
+      } else {
+        await userManagementClient.post("/data", {
+          first_name,
+          last_name,
+          email,
+          phone,
         });
+        swal("Success!", "User has been created successfully", "success");
       }
-
-      setSubmitting(false);
-
-      // Perform any additional actions...
+      props.onClose();
     } catch (error) {
-      // Show error message
-      Swal.fire({
-        icon: "error",
-        title: "Error!",
-        text: "An error occurred while processing your request. Please try again later.",
-      });
-
-      // Reset form
+      swal("Error!", "Unable to save user, try again later", "error");
+    } finally {
+      setLoading(false);
       setSubmitting(false);
     }
   };
-  const isNonMobile = useMediaQuery("(min-width:600px)");
+
+  const formik = useFormik({
+    initialValues,
+    validationSchema,
+    onSubmit: handleSubmit,
+  });
+
   return (
-    <Box m="20px">
-      <Header
-        title={props.isEditing ? "Edit Judges" : "Assign Judges"}
-        subtitle={
-          props.isEditing ? "Edit Existing Judges" : "Assign New Judges"
-        }
+    <Box component="form" onSubmit={formik.handleSubmit} noValidate>
+      <TextField
+        fullWidth
+        id="first_name"
+        name="first_name"
+        label="First Name"
+        value={formik.values.first_name}
+        onChange={formik.handleChange}
+        error={formik.touched.first_name && Boolean(formik.errors.first_name)}
+        helperText={formik.touched.first_name && formik.errors.first_name}
+        margin="normal"
       />
-
-      <Formik
-        onSubmit={handleSubmit}
-        initialValues={initialValues}
-        validationSchema={validationSchema}
-      >
-        {({
-          values,
-          errors,
-          touched,
-          handleBlur,
-          handleChange,
-          handleSubmit,
-          setFieldValue,
-          isSubmitting,
-        }) => (
-          <form onSubmit={handleSubmit}>
-            <Autocomplete
-              multiple
-              fullWidth
-              options={judgesData || []}
-              getOptionLabel={(option) => option.name || ""}
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  variant="filled"
-                  label="Judge Panel"
-                  error={Boolean(params.error)}
-                  helperText={params.error}
-                />
-              )}
-              onChange={(event, newValue) => {
-                // Update the Formik field value with the selected options
-                setFieldValue(
-                  "judgeId",
-                  newValue.map((option) => option.judgeId)
-                ); // Assuming id is the unique identifier for users
-              }}
-            />
-
-            <Box display="flex" justifyContent="end" mt="20px">
-              <Button
-                type="submit"
-                color="secondary"
-                variant="contained"
-                disabled={isSubmitting}
-              >
-                {isSubmitting ? "Submitting..." : "Submit"}
-              </Button>
-            </Box>
-          </form>
-        )}
-      </Formik>
+      <TextField
+        fullWidth
+        id="last_name"
+        name="last_name"
+        label="Last Name"
+        value={formik.values.last_name}
+        onChange={formik.handleChange}
+        error={formik.touched.last_name && Boolean(formik.errors.last_name)}
+        helperText={formik.touched.last_name && formik.errors.last_name}
+        margin="normal"
+      />
+      <TextField
+        fullWidth
+        id="email"
+        name="email"
+        label="Email"
+        value={formik.values.email}
+        onChange={formik.handleChange}
+        error={formik.touched.email && Boolean(formik.errors.email)}
+        helperText={formik.touched.email && formik.errors.email}
+        margin="normal"
+      />
+      <TextField
+        fullWidth
+        id="phone"
+        name="phone"
+        label="Phone"
+        value={formik.values.phone}
+        onChange={formik.handleChange}
+        error={formik.touched.phone && Boolean(formik.errors.phone)}
+        helperText={formik.touched.phone && formik.errors.phone}
+        margin="normal"
+      />
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
+        <Button color="primary" variant="contained" type="submit" disabled={loading}>
+          {loading ? <CircularProgress size={24} /> : props.isEditing ? 'Update User' : 'Create User'}
+        </Button>
+        <Button color="secondary" variant="outlined" onClick={props.onClose}>
+          Cancel
+        </Button>
+      </Box>
     </Box>
   );
 };
 
-export default JudgeAssignmentForm;
+export default UsersForm;

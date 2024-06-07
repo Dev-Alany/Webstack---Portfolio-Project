@@ -14,7 +14,6 @@ import { Provider } from "react-redux";
 import Cases from "./scenes/CaseManagement/Case";
 import CaseDetails from "./scenes/Case";
 import CorporateClients from "./scenes/clientManagement/corporateClients";
-import IndividualClients from "./scenes/clientManagement/individualClients";
 import withLayout from "./components/HOCApp";
 import ChartOfAccounts from "./scenes/AccountsAndFinanceManagement/chartofaccounts";
 import BarChart from "./components/BarChart";
@@ -55,7 +54,6 @@ function App() {
             </Routes>
             <Routes>
               <Route path="/corporate-clients" element={withLayout(CorporateClients)()} />
-              <Route path="/individual-clients" element={withLayout(IndividualClients)()} />
             </Routes>
             <Routes>
               <Route path="/bar" element={withLayout(BarChart)()} />

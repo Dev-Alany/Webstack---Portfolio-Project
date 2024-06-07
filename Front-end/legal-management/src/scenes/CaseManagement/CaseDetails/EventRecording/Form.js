@@ -1,243 +1,119 @@
-// import React, { useState, useEffect } from "react";
-import {
-  Box,
-  Button,
-  TextField,
-  Select,
-  MenuItem,
-  Autocomplete,
-  InputLabel,
-  useMediaQuery,
-} from "@mui/material";
-import { useEffect, useState } from "react";
-import { Formik } from "formik";
-import * as yup from "yup";
-import Swal from "sweetalert2";
-import Header from "../../../../components/Header";
-import {
-  generateAndExecuteBulkMutation,
-  generateAndExecuteMutation,
-  graphqlQuery,
-} from "../../../../data/Axios/DynamicService";
-import { caseManagementUrl, setupManagementUrl } from "../../../../config";
-import { allEventTypes } from "../../../../data/Axios/queries";
+import React from "react";
+import { useFormik } from "formik";
+import * as Yup from "yup";
+import { TextField, Button, CircularProgress, Box } from "@mui/material";
+import swal from "sweetalert";
+import { userManagementClient } from "../../../../config";
+import { useState } from "react";
 
 const CaseEventForm = (props) => {
-  const base_url = caseManagementUrl.uri;
-  const setup_url = setupManagementUrl.uri;
-  const [eventTypes, setEventTypes] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  async function fetchEventTypes() {
-    try {
-      const data = await graphqlQuery(allEventTypes, setup_url);
-      if (data !== null) {
-        setEventTypes(data);
-      }
-    } catch (error) {
-      console.error("Error fetching event types:", error);
-      throw error;
-    }
-  }
-
-  useEffect(() => {
-    fetchEventTypes();
-  }, []);
+  const [loading, setLoading] = useState(false);
 
   const initialValues = {
-    eventTypeId: props.data ? props.data.eventTypeId : "",
-    eventDate: props.data ? props.data.eventDate : "",
-    outcome: props.data ? props.data.outcome : "",
-    hearingDate: props.data ? props.data.hearingDate : "",
-    description: props.data ? props.data.description : "",
+    first_name: props.userData ? props.userData.first_name : "",
+    last_name: props.userData ? props.userData.last_name : "",
+    email: props.userData ? props.userData.email : "",
+    phone: props.userData ? props.userData.phone : "",
   };
 
-  const validationSchema = yup.object().shape({
-    eventTypeId: yup.number().required("Event Type is required"),
-    eventDate: yup.date().required("Event Date is required"),
-    outcome: yup.string().required("Outcome is required"),
-    hearingDate: yup.date().required("Hearing Date is required"),
-    description: yup.string().required("Description is required"),
+  const validationSchema = Yup.object({
+    first_name: Yup.string().required("First Name is required"),
+    last_name: Yup.string().required("Last Name is required"),
+    email: Yup.string().email("Invalid email format").required("Email is required"),
+    phone: Yup.string().required("Phone is required"),
   });
 
-  const caseIdFromSession = JSON.parse(localStorage.getItem("CaseId"));
-  const decodedToken = JSON.parse(localStorage.getItem("decodedToken"));
-  const userIdFromSession = parseInt(decodedToken.Id);
+  const handleSubmit = async (values, { setSubmitting }) => {
+    setLoading(true);
+    const { first_name, last_name, email, phone } = values;
 
-  const handleSubmit = async (values, { setSubmitting, resetForm }) => {
     try {
-      const caseEventObject = {
-        caseId: caseIdFromSession,
-        eventTypeId: values.eventTypeId,
-        eventDate: values.eventDate,
-        outcome: values.outcome,
-        hearingDate: values.hearingDate,
-        description: values.description,
-        createdBy: userIdFromSession,
-        companyId: null,
-        company: null,
-      };
-
-      const response = generateAndExecuteMutation(
-        props.isEditing ? "updateCaseEvent" : "createCaseEvent",
-        caseEventObject,
-        props.isEditing ? "newCaseEvent" : "newCaseEvent",
-
-        base_url
-      );
-
-      if (response) {
-        props.onAction();
-        resetForm();
-        Swal.fire({
-          icon: "success",
-          title: "Success!",
-          text: `Case Event ${
-            props.isEditing ? "updated" : "created"
-          } successfully.`,
+      if (props.isEditing) {
+        await userManagementClient.put(`/update/${props.userData.User_Id}`, {
+          first_name,
+          last_name,
+          email,
+          phone,
         });
+        swal("Success!", "User has been updated successfully", "success");
+      } else {
+        await userManagementClient.post("/data", {
+          first_name,
+          last_name,
+          email,
+          phone,
+        });
+        swal("Success!", "User has been created successfully", "success");
       }
-
-      setSubmitting(false);
+      props.onClose();
     } catch (error) {
-      Swal.fire({
-        icon: "error",
-        title: "Error!",
-        text: "An error occurred while processing your request. Please try again later.",
-      });
-
+      swal("Error!", "Unable to save user, try again later", "error");
+    } finally {
+      setLoading(false);
       setSubmitting(false);
     }
   };
 
-  const isNonMobile = useMediaQuery("(min-width:600px)");
+  const formik = useFormik({
+    initialValues,
+    validationSchema,
+    onSubmit: handleSubmit,
+  });
 
   return (
-    <Box m="20px">
-      <Header
-        title={props.isEditing ? "Edit Case Event" : "Create Case Event"}
-        subtitle={
-          props.isEditing
-            ? "Edit an Existing Case Event"
-            : "Create a New Case Event"
-        }
+    <Box component="form" onSubmit={formik.handleSubmit} noValidate>
+      <TextField
+        fullWidth
+        id="first_name"
+        name="first_name"
+        label="First Name"
+        value={formik.values.first_name}
+        onChange={formik.handleChange}
+        error={formik.touched.first_name && Boolean(formik.errors.first_name)}
+        helperText={formik.touched.first_name && formik.errors.first_name}
+        margin="normal"
       />
-
-      <Formik
-        onSubmit={handleSubmit}
-        initialValues={initialValues}
-        validationSchema={validationSchema}
-      >
-        {({
-          values,
-          errors,
-          touched,
-          handleBlur,
-          handleChange,
-          handleSubmit,
-          setFieldValue,
-          isSubmitting,
-        }) => (
-          <form onSubmit={handleSubmit}>
-            <InputLabel id="eventTypeId-label">Event Type</InputLabel>
-            <Select
-              fullWidth
-              labelId="eventTypeId-label"
-              id="eventTypeId"
-              name="eventTypeId"
-              value={values.eventTypeId}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              error={touched.eventTypeId && Boolean(errors.eventTypeId)}
-              helperText={touched.eventTypeId && errors.eventTypeId}
-            >
-              <MenuItem value="" disabled>
-                Select Event Type
-              </MenuItem>
-              {eventTypes.map((option) => (
-                <MenuItem key={option.id} value={option.id}>
-                  {option.eventType}
-                </MenuItem>
-              ))}
-            </Select>
-
-            <TextField
-              fullWidth
-              id="eventDate"
-              name="eventDate"
-              label="Event Date"
-              type="date"
-              value={values.eventDate}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              error={touched.eventDate && Boolean(errors.eventDate)}
-              helperText={touched.eventDate && errors.eventDate}
-              InputLabelProps={{
-                shrink: true,
-              }}
-              variant="filled"
-              margin="normal"
-            />
-
-            <TextField
-              fullWidth
-              id="outcome"
-              name="outcome"
-              label="Outcome"
-              value={values.outcome}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              error={touched.outcome && Boolean(errors.outcome)}
-              helperText={touched.outcome && errors.outcome}
-              variant="filled"
-              margin="normal"
-            />
-
-            <TextField
-              fullWidth
-              id="hearingDate"
-              name="hearingDate"
-              label="Hearing Date"
-              type="date"
-              value={values.hearingDate}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              error={touched.hearingDate && Boolean(errors.hearingDate)}
-              helperText={touched.hearingDate && errors.hearingDate}
-              InputLabelProps={{
-                shrink: true,
-              }}
-              variant="filled"
-              margin="normal"
-            />
-
-            <TextField
-              fullWidth
-              id="description"
-              name="description"
-              label="Description"
-              value={values.description}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              error={touched.description && Boolean(errors.description)}
-              helperText={touched.description && errors.description}
-              variant="filled"
-              margin="normal"
-            />
-
-            <Box display="flex" justifyContent="end" mt="20px">
-              <Button
-                type="submit"
-                color="secondary"
-                variant="contained"
-                disabled={isSubmitting}
-              >
-                {isSubmitting ? "Submitting..." : "Submit"}
-              </Button>
-            </Box>
-          </form>
-        )}
-      </Formik>
+      <TextField
+        fullWidth
+        id="last_name"
+        name="last_name"
+        label="Last Name"
+        value={formik.values.last_name}
+        onChange={formik.handleChange}
+        error={formik.touched.last_name && Boolean(formik.errors.last_name)}
+        helperText={formik.touched.last_name && formik.errors.last_name}
+        margin="normal"
+      />
+      <TextField
+        fullWidth
+        id="email"
+        name="email"
+        label="Email"
+        value={formik.values.email}
+        onChange={formik.handleChange}
+        error={formik.touched.email && Boolean(formik.errors.email)}
+        helperText={formik.touched.email && formik.errors.email}
+        margin="normal"
+      />
+      <TextField
+        fullWidth
+        id="phone"
+        name="phone"
+        label="Phone"
+        value={formik.values.phone}
+        onChange={formik.handleChange}
+        error={formik.touched.phone && Boolean(formik.errors.phone)}
+        helperText={formik.touched.phone && formik.errors.phone}
+        margin="normal"
+      />
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
+        <Button color="primary" variant="contained" type="submit" disabled={loading}>
+          {loading ? <CircularProgress size={24} /> : props.isEditing ? 'Update User' : 'Create User'}
+        </Button>
+        <Button color="secondary" variant="outlined" onClick={props.onClose}>
+          Cancel
+        </Button>
+      </Box>
     </Box>
   );
 };
