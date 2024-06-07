@@ -27,7 +27,7 @@ const Dashboard = () => {
     <Box m="20px">
       {/* HEADER */}
       <Box display="flex" justifyContent="space-between" alignItems="center">
-        <Header title="SHERIAPRO DASHBOARD" subtitle="Welcome to SheriaPro Dashboard" />
+        <Header title="Super Admin Dashboard" subtitle="Welcome to Super Admin Dashboard" />
 
         <Box>
           {/* <Button
