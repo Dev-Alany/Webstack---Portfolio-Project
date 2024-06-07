@@ -64,8 +64,6 @@ def get_all_ClientManagementView():
                         'IndustrySector': u.IndustrySector,
                         'Client_Type': u.Client_Type,
                         'CompanyName': u.CompanyName,
-                        'Address':u.Address,
-                        'Email':u.Email
                 }
 
                 output.append(ClientManagementViewdata)

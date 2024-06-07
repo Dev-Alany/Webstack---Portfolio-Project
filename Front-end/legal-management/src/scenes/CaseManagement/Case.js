@@ -47,7 +47,7 @@ function Users() {
   const fetchCases = async () => {
     try {
       setLoading(true);
-      const data = await getallCases();
+      const data = await getallCases("cases");
       setUsers(data.data); // Adjust based on your API response structure
     } catch (err) {
       setError(err);
@@ -140,7 +140,6 @@ function Users() {
     { field: "SubCategoryName", headerName: "SubCategoryName", flex: 0.5 },
     { field: "Client_Type", headerName: "Client_Type", flex: 0.5 },
     { field: "CaseCategory", headerName: "CaseCategory", flex: 0.5 },
-    { field: "User_email", headerName: "Email", flex: 0.5 },
     {
       field: "actions",
       headerName: "Actions",
