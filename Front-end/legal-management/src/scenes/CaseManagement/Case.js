@@ -137,10 +137,10 @@ function Users() {
 
   const columns = [
     { field: "id", type: "number", headerName: "ID", flex: 0.5 },
-    { field: "SubCategoryName", headerName: "SubCategoryName", flex: 0.5 },
-    { field: "Client_Type", headerName: "Client_Type", flex: 0.5 },
-    { field: "CaseCategory", headerName: "CaseCategory", flex: 0.5 },
-    { field: "User_email", headerName: "Email", flex: 0.5 },
+    { field: "Name", headerName: "SubCategoryName", flex: 0.5 },
+    // { field: "name", headerName: "Client_Type", flex: 0.5 },
+    // { field: "name", headerName: "CaseCategory", flex: 0.5 },
+    // { field: "name", headerName: "Email", flex: 0.5 },
     {
       field: "actions",
       headerName: "Actions",

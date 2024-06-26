@@ -36,17 +36,17 @@ def get_all_Company_Region_View():
         return {"data": output}
 
 def get_all_cases():
-        sql=text('select * from ClientCaseDetailsView;')
+        sql=text('select * from cases;')
         allcases=db.session.execute(sql)
         output = []
         for u in allcases:
                 Cases_data = {
                         'id':u.Id,
                         # 'CompanyName':u.CompanyName,
-                        'SubCategoryName': u.SubCategoryName,
-                        'Client_Type': u.Client_Type,
-                        'CaseName': u.CaseName,
-                        'CaseCategory':u.CaseCategory,
+                        'Name': u.Name,
+                        # 'status': u.status,
+                        # 'CaseName': u.CaseName,
+                        # 'CaseCategory':u.CaseCategory,
                         # 'status':u.Status
                 }
 

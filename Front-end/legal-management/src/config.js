@@ -53,3 +53,7 @@ export const documentUploadUrl = {
 export const companyManagementUrl = {
   uri: "https://sheriapro.mcb.co.ke/gateway/companymanagement",
 };
+
+export const notificationService={
+  uri:"http://localhost:5000/data"
+};

@@ -5,8 +5,6 @@ import { clientManagementUrl } from "../../../config";
 import CorporateClientsForm from "./form";
 import { CorporateClientsColumns } from "../../../data/DynamicTable/Collumns";
 
-const base_url = clientManagementUrl.uri;
-
 const actions = {
   edit: {
     key: "EDIT",

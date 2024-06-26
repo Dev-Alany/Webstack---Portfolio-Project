@@ -1,20 +1,25 @@
-import { useEffect, useState, useContext } from "react";
 import {
   Box,
   IconButton,
   useTheme,
   useMediaQuery,
-  Modal,
+  Badge,
+  Stack,
+  Popover,
+  List,
+  ListItem,
   Typography,
+  Divider,
+  ListItemText,
+  Modal,
+  Button,
 } from "@mui/material";
+import { useContext, useEffect, useState } from "react";
 import { ColorModeContext, tokens } from "../../theme";
-import InputBase from "@mui/material/InputBase";
 import LightModeOutlinedIcon from "@mui/icons-material/LightModeOutlined";
 import DarkModeOutlinedIcon from "@mui/icons-material/DarkModeOutlined";
 import NotificationsModeOutlinedIcon from "@mui/icons-material/NotificationsOutlined";
-import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 import PersonOutlinedIcon from "@mui/icons-material/PersonOutlined";
-import SearchIcon from "@mui/icons-material/Search";
 import LogoutOutlinedIcon from "@mui/icons-material/LogoutOutlined";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -23,122 +28,197 @@ const Topbar = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const colorMode = useContext(ColorModeContext);
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [profileAnchorEl, setProfileAnchorEl] = useState(null);
   const navigate = useNavigate();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
-  const [searchText, setSearchText] = useState("");
-  const [items, setItems] = useState([
-    { id: 1, title: "Item 1" },
-    { id: 2, title: "Item 2" },
-    { id: 3, title: "Item 3" },
-  ]); // Initialize items with your array of items
-  const [open, setOpen] = useState(false);
-  const [user, setUser] = useState(null); // State to hold user data
+  const [notifications, setNotifications] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    let isMounted = true;
+    async function fetchAllData() {
+      try {
+        if (isMounted) {
+          const notificationsResponse = await axios.get(
+            "http://localhost:5000/notifications"
+          ); // Update this with your actual notifications endpoint
+          if (notificationsResponse.data) {
+            setNotifications(notificationsResponse.data);
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchAllData();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const handleLogout = () => {
     localStorage.clear();
-    navigate("/");
+    navigate("/Login");
   };
 
-  const handleSearch = () => {
-    // Filter the items based on the search text
-    const filteredItems = items.filter((item) =>
-      item.title.toLowerCase().includes(searchText.toLowerCase())
-    );
-
-    // You can now use the filteredItems for further processing
-    console.log("Search results:", filteredItems);
+  const handleNotificationClick = (event) => {
+    setAnchorEl(anchorEl ? null : event.currentTarget);
   };
 
-  const handleOpen = async () => {
-    try {
-      const response = await axios.get("http://localhost:5000/data");
-      setUser(response.data);
-      setOpen(true);
-    } catch (error) {
-      console.error("Error fetching user data:", error);
+  const handleProfileClick = async (event) => {
+    setProfileAnchorEl(profileAnchorEl ? null : event.currentTarget);
+    if (!profileAnchorEl) {
+      try {
+        const response = await axios.get("http://localhost:5000/user", {
+          withCredentials: true,
+        });
+        setUser(response.data);
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      }
     }
   };
 
-  const handleClose = () => setOpen(false);
+  const open = Boolean(anchorEl);
+  const profileOpen = Boolean(profileAnchorEl);
+  const id = open ? "simple-popover" : undefined;
+  const profileId = profileOpen ? "profile-popover" : undefined;
 
   return (
-    <Box display="flex" justifyContent={isSmallScreen ? "space-evenly" : "space-between"} p={2}>
+    <Box
+      display="flex"
+      justifyContent={isSmallScreen ? "space-evenly" : "space-between"}
+      p={2}
+    >
       <Box display="flex" backgroundColor={colors.grey[800]} borderRadius="3px">
-        <InputBase
-          sx={{ ml: 2, flex: 1 }}
-          placeholder="Search"
-          value={searchText}
-          onChange={(e) => setSearchText(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              handleSearch();
-            }
-          }}
-        />
-        <IconButton type="button" sx={{ p: 1 }} onClick={handleSearch}>
-          <SearchIcon />
-        </IconButton>
       </Box>
-      <Box display="flex">
+      <Stack spacing={2} direction="row">
         <IconButton onClick={colorMode.toggleColorMode}>
-          {theme.palette.mode === "dark" ? <DarkModeOutlinedIcon /> : <LightModeOutlinedIcon />}
+          {theme.palette.mode === "dark" ? (
+            <DarkModeOutlinedIcon />
+          ) : (
+            <LightModeOutlinedIcon />
+          )}
         </IconButton>
-        <IconButton>
-          <NotificationsModeOutlinedIcon />
-        </IconButton>
-        <IconButton>
-          <SettingsOutlinedIcon />
+        <IconButton aria-describedby={id} onClick={handleNotificationClick}>
+          <Badge badgeContent={notifications.count} color="secondary">
+            <NotificationsModeOutlinedIcon color="action" />
+          </Badge>
         </IconButton>
         <IconButton onClick={handleLogout}>
           <LogoutOutlinedIcon />
         </IconButton>
-        <IconButton onClick={handleOpen}>
+        <IconButton aria-describedby={profileId} onClick={handleProfileClick}>
           <PersonOutlinedIcon />
         </IconButton>
-      </Box>
-      <Modal open={open} onClose={handleClose}>
+      </Stack>
+      <Popover
+        id={id}
+        open={open}
+        anchorEl={anchorEl}
+        onClose={() => setAnchorEl(null)}
+        anchorOrigin={{
+          vertical: "bottom",
+          horizontal: "left",
+        }}
+        transformOrigin={{
+          vertical: "top",
+          horizontal: "left",
+        }}
+      >
         <Box
+          p={2}
           sx={{
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            width: '100%',
-            bgcolor: `${colors.greenAccent[400]}`,
-            border: '2px solid #000',
-            boxShadow: 24,
-            p: 4,
-            height:'100vh',
+            width: "300px",
+            borderRadius: "0.75rem",
+            bgcolor:
+              theme.palette.mode === "light"
+                ? colors.blueAccent[900]
+                : colors.grey[600],
           }}
         >
-          <Typography variant="h6" component="h2">
+          <Typography
+            sx={{
+              fontSize: 14,
+              color: colors.greenAccent[400],
+            }}
+            variant="h6"
+          >
+            Notifications
+          </Typography>
+          <List>
+            {notifications.notifications?.map((notification) => (
+              <div key={notification.notificationId}>
+                <ListItem>
+                  <ListItemText primary={notification.body} />
+                </ListItem>
+                <Divider sx={{ color: colors.redAccent[400] }} />
+              </div>
+            ))}
+          </List>
+        </Box>
+      </Popover>
+      <Popover
+        id={profileId}
+        open={profileOpen}
+        anchorEl={profileAnchorEl}
+        onClose={() => setProfileAnchorEl(null)}
+        anchorOrigin={{
+          vertical: "bottom",
+          horizontal: "left",
+        }}
+        transformOrigin={{
+          vertical: "top",
+          horizontal: "left",
+        }}
+      >
+        <Box
+          p={2}
+          sx={{
+            width: "300px",
+            borderRadius: "0.75rem",
+            bgcolor:
+              theme.palette.mode === "light"
+                ? colors.blueAccent[900]
+                : colors.grey[600],
+          }}
+        >
+          <Typography
+            sx={{
+              fontSize: 14,
+              color: colors.greenAccent[400],
+            }}
+            variant="h6"
+          >
             User Details
           </Typography>
           {user ? (
             <>
-              <Typography sx={{ mt: 2, variant:'h2'}}>
-                <strong>Username:</strong> {user.Username}
-              </Typography>
-              <Typography sx={{ mt: 2 , color:colors.grey[100]}}>
-                <strong>Email:</strong> {user.User_email}
+              <Typography sx={{ mt: 2 }}>
+                <strong>Username:</strong> {user.username}
               </Typography>
               <Typography sx={{ mt: 2 }}>
-                <strong>First Name:</strong> {user.First_name}
+                <strong>Email:</strong> {user.email}
               </Typography>
               <Typography sx={{ mt: 2 }}>
-                <strong>Last Name:</strong> {user.Last_name}
+                <strong>First Name:</strong> {user.first_name}
+              </Typography>
+              <Typography sx={{ mt: 2 }}>
+                <strong>Last Name:</strong> {user.last_name}
               </Typography>
               <Typography sx={{ mt: 2 }}>
                 <strong>Status:</strong> {user.status}
               </Typography>
             </>
           ) : (
-            <Typography sx={{ mt: 2 }}>
-              Loading user details...
-            </Typography>
+            <Typography sx={{ mt: 2 }}>Loading user details...</Typography>
           )}
         </Box>
-      </Modal>
+      </Popover>
     </Box>
   );
 };
