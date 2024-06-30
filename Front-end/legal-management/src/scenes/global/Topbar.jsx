@@ -21,10 +21,11 @@ import DarkModeOutlinedIcon from "@mui/icons-material/DarkModeOutlined";
 import NotificationsModeOutlinedIcon from "@mui/icons-material/NotificationsOutlined";
 import PersonOutlinedIcon from "@mui/icons-material/PersonOutlined";
 import LogoutOutlinedIcon from "@mui/icons-material/LogoutOutlined";
-import { useNavigate } from "react-router-dom";
+import { json, useNavigate } from "react-router-dom";
 import axios from "axios";
 
 const Topbar = () => {
+
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const colorMode = useContext(ColorModeContext);
@@ -34,18 +35,20 @@ const Topbar = () => {
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState([]);
 
   useEffect(() => {
     let isMounted = true;
+
     async function fetchAllData() {
       try {
         if (isMounted) {
+          const username = JSON.parse(sessionStorage.user)
           const notificationsResponse = await axios.get(
-            "http://localhost:5000/notifications"
+            `http://localhost:5000/notifications/${username}`
           ); // Update this with your actual notifications endpoint
           if (notificationsResponse.data) {
-            setNotifications(notificationsResponse.data);
+            setNotifications(notificationsResponse.data.data);
           }
         }
       } catch (error) {
@@ -60,9 +63,27 @@ const Topbar = () => {
     };
   }, []);
 
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const userId = JSON.parse(sessionStorage.user);
+        const response = await axios.get(`http://localhost:5000/data/${userId}`);
+        if (response.data) {
+          setUser(response.data);
+        }
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      }
+    };
+
+    if (profileAnchorEl) {
+      fetchUserData();
+    }
+  }, [profileAnchorEl]);
+
   const handleLogout = () => {
     localStorage.clear();
-    navigate("/Login");
+    navigate("/");
   };
 
   const handleNotificationClick = (event) => {
@@ -71,16 +92,6 @@ const Topbar = () => {
 
   const handleProfileClick = async (event) => {
     setProfileAnchorEl(profileAnchorEl ? null : event.currentTarget);
-    if (!profileAnchorEl) {
-      try {
-        const response = await axios.get("http://localhost:5000/user", {
-          withCredentials: true,
-        });
-        setUser(response.data);
-      } catch (error) {
-        console.error("Error fetching user data:", error);
-      }
-    }
   };
 
   const open = Boolean(anchorEl);
@@ -94,8 +105,11 @@ const Topbar = () => {
       justifyContent={isSmallScreen ? "space-evenly" : "space-between"}
       p={2}
     >
-      <Box display="flex" backgroundColor={colors.grey[800]} borderRadius="3px">
-      </Box>
+      <Box
+        display="flex"
+        backgroundColor={colors.grey[800]}
+        borderRadius="3px"
+      ></Box>
       <Stack spacing={2} direction="row">
         <IconButton onClick={colorMode.toggleColorMode}>
           {theme.palette.mode === "dark" ? (
@@ -105,7 +119,7 @@ const Topbar = () => {
           )}
         </IconButton>
         <IconButton aria-describedby={id} onClick={handleNotificationClick}>
-          <Badge badgeContent={notifications.count} color="secondary">
+          <Badge badgeContent={notifications.length} color="secondary">
             <NotificationsModeOutlinedIcon color="action" />
           </Badge>
         </IconButton>
@@ -151,10 +165,10 @@ const Topbar = () => {
             Notifications
           </Typography>
           <List>
-            {notifications.notifications?.map((notification) => (
-              <div key={notification.notificationId}>
+            {notifications?.map((notification) => (
+              <div key={notification.id}>
                 <ListItem>
-                  <ListItemText primary={notification.body} />
+                  <ListItemText primary={notification.description} />
                 </ListItem>
                 <Divider sx={{ color: colors.redAccent[400] }} />
               </div>
@@ -196,23 +210,31 @@ const Topbar = () => {
           >
             User Details
           </Typography>
+          {/* {user?.map((users) => (
+              <div key={users.id}>
+                <ListItem>
+                  <ListItemText primary={users.First_name} />
+                </ListItem>
+                <Divider sx={{ color: colors.redAccent[400] }} />
+              </div>
+            ))} */}
           {user ? (
             <>
               <Typography sx={{ mt: 2 }}>
-                <strong>Username:</strong> {user.username}
+                <strong>Username:</strong> {user.User_name}
               </Typography>
               <Typography sx={{ mt: 2 }}>
-                <strong>Email:</strong> {user.email}
+                <strong>Email:</strong> {user.User_email}
               </Typography>
               <Typography sx={{ mt: 2 }}>
-                <strong>First Name:</strong> {user.first_name}
-              </Typography>
+                <strong>First Name:</strong> {user.First_name}
+              </Typography> 
               <Typography sx={{ mt: 2 }}>
-                <strong>Last Name:</strong> {user.last_name}
+                <strong>Last Name:</strong> {user.Last_name}
               </Typography>
-              <Typography sx={{ mt: 2 }}>
+              {/* <Typography sx={{ mt: 2 }}>
                 <strong>Status:</strong> {user.status}
-              </Typography>
+              </Typography> */}
             </>
           ) : (
             <Typography sx={{ mt: 2 }}>Loading user details...</Typography>

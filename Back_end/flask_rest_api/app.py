@@ -6,13 +6,14 @@ from clientManagement import Client
 from CasseManagement import Cases, CaseCategory, SubCategory
 from CompanyManagment import Company, IndustrySector
 from AccountManagement import Banks, BankAccounts, BankBranches
-from query import get_all_Users, get_all_Company_Region_View, get_all_cases, get_all_ClientManagementView
+from query import get_all_Users, get_all_Company_Region_View, get_all_cases, get_all_ClientManagementView, get_all_notifications, get_all_gender
 from delete import delete_user
 from companyRegionBranches import CompanyRegionBranchView
-from mutation import create_user
-from update import update_user
+from mutation import create_user, Create_Case
+from update import update_user, update_caes
 from signin import SignIn
 from flask_login import LoginManager, login_required, current_user
+from query import text
 
 app = Flask(__name__)
 CORS(app)
@@ -43,6 +44,9 @@ def get_user_data():
     }
     return jsonify(user_data)
 
+
+# Method Get
+
 @app.route('/crb', methods=['GET'])
 def get_company_region_branches():
     return get_all_Users()
@@ -51,36 +55,72 @@ def get_company_region_branches():
 def getdata():
     return get_all_Users()
 
-@app.route('/data/<id>')
-def get_data_by_id(id):
-    user = Users.query.get_or_404(id)
-    return {'First_name': user.First_name, 'Last_name': user.Last_name, 'User_email': user.User_Email}
+@app.route('/notifications/<username>')
+def getNotifications(username):
+    return get_all_notifications(username)
+
+@app.route('/data/<Name>')
+def get_data_by_name(Name):
+    # Corrected the variable and parameter names to be consistent
+    sql = text("SELECT * FROM Users WHERE Username = :name")
+    user = db.session.execute(sql, {'name': Name}).fetchone()  # Fetch one result
+
+    # Ensure that the user exists
+    if user:
+        user_data = {
+            'User_name':user.Username,
+            'First_name': user.First_name,
+            'Last_name': user.Last_name,
+            'User_email': user.User_Email
+        }
+        return jsonify(user_data)
+    else:
+        return jsonify({'error': 'User not found'}), 404
+
+@app.route('/company')
+def getCompanyRegionView():
+    return get_all_Company_Region_View()
+
+# *** Cases Management ***
+
+@app.route('/cases', methods =['GET'])
+def get_all_Cases():
+    return get_all_cases()
+
+@app.route('/cases', methods =['POST'])
+def create_cases():
+    return Create_Case()
+
+@app.route('/cases/<case_id>', methods=['PUT'])
+def update_case(case_id):
+    return update_caes(case_id)
+
+#  ** Client Management**
+@app.route('/clientManagement')
+def all_ClientManagementView():
+    return get_all_cases()
+    # return get_all_ClientManagementView()
+
+@app.route('/gender')
+def all_gender():
+    return get_all_gender()
+## Method POST
 
 @app.route('/data', methods=['POST'])
 def Create_user():
     return create_user()
     
 
+# Method Put
 @app.route('/update/<user_id>', methods=['PUT'])
 def Update_User(user_id):
     return update_user(user_id)
 
-@app.route('/delete/<id>', methods=['DELETE'])
+@app.route('/delete/<id>', methods=['PUT'])
 def delete(id):
     return delete_user(id)
 
-@app.route('/company')
-def getCompanyRegionView():
-    return get_all_Company_Region_View()
 
-@app.route('/cases')
-def get_all_Cases():
-    return get_all_cases()
-
-@app.route('/clientManagement')
-def all_ClientManagementView():
-    return get_all_cases()
-    # return get_all_ClientManagementView()
 
 if __name__ == '__main__':
     with app.app_context():

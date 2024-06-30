@@ -5,12 +5,12 @@ def SignIn():
     password = data.get('password')
 
     if not Username or not password:
-        return jsonify({"message": "Missing Username or password"}), 400
+        return jsonify({"message": "Missing Username or password"}), 401
 
     user = Users.query.filter_by(Username=Username).first()
 
-    if user.Status != "Active":
-        return jsonify({"message":"You are blocked"}), 401
+    if user.Status != 1:
+        return jsonify({"message":"You are Inactive, Kindly contact Admin"}), 401
 
 
     if user.Username != Username and user.password != password:

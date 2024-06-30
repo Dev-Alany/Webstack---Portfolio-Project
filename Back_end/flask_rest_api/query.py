@@ -1,19 +1,25 @@
-from UserManagment import Users, db
+from UserManagment import Users, db, jsonify
 from companyRegionBranches import CompanyRegionBranchView
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import text
 
 def get_all_Users():
-        user = Users.query.all()
+        userAll=text('select * from users')
+        user = db.session.execute(userAll)
         output = []
         for u in user:
                 user_data = {
-                        'User_Id':u.User_Id,
+                        'id':u.User_Id,
+                        'Username':u.Username,
                         'First_name': u.First_name,
                         'Last_name': u.Last_name,
                         'User_email': u.User_Email,
                         'Phone_number':u.Phone_number,
-                        'status':u.Status
+                        'status':u.status,
+                        'created_by':u.created_by,
+                        'updated_by':u.updated_by,
+                        'gender':u.genderId
+
                 }
                 output.append(user_data)
         return {"data": output}
@@ -43,7 +49,7 @@ def get_all_cases():
                 Cases_data = {
                         'id':u.Id,
                         # 'CompanyName':u.CompanyName,
-                        'Name': u.Name,
+                        'name': u.Name,
                         # 'status': u.status,
                         # 'CaseName': u.CaseName,
                         # 'CaseCategory':u.CaseCategory,
@@ -70,3 +76,45 @@ def get_all_ClientManagementView():
 
                 output.append(ClientManagementViewdata)
         return {"data": output}
+
+def get_all_notifications(username):
+    # Query to get all notifications
+    sql = text('SELECT * FROM notifications where UserId=(select User_id from users where Username=:username);')
+    all_notifications = db.session.execute(sql,{"username":username}).fetchall()
+
+    # Query to get the count of notifications
+#     sql_count = text('SELECT COUNT(*) FROM notifications;')
+#     count_result = db.session.execute(sql_count).fetchone()
+#     count = count_result[0]  # Accessing the count using integer index
+
+    # Prepare the output
+    output = []
+    for u in all_notifications:
+        notification_data = {
+            'id': u[0],  # Assuming the first column is 'id'
+            'description': u[1]  # Assuming the second column is 'description'
+        }
+        output.append(notification_data)
+
+    return jsonify({
+        "data": output,
+    })
+
+def get_all_gender():
+    # Query to get all notifications
+    sql = text('SELECT * from gender;')
+    all_notifications = db.session.execute(sql).fetchall()
+
+
+    # Prepare the output
+    output = []
+    for u in all_notifications:
+        notification_data = {
+            'id': u[0],  # Assuming the first column is 'id'
+            'gender': u[1]  # Assuming the second column is 'description'
+        }
+        output.append(notification_data)
+
+    return jsonify({
+        "data": output,
+    })

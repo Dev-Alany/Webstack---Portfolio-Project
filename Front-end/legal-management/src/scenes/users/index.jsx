@@ -25,7 +25,11 @@ import AnchorTemporaryDrawer from "../../components/Drawer";
 import swal from "sweetalert";
 import { userManagementClient } from "../../config";
 import UsersForm from "./users-form";
-import { getAllUsers, createUser, deleteUser } from "../../api/userservice";  // Import service functions
+import { getAllUsers, createUser, deleteUser } from "../../api/userservice"; // Import service functions
+import DynamicTable from "../../data/DynamicTable/dynamicTable";
+import IndividualClients from "../clientManagement/individualClients";
+import { allIndividualClients } from "../../data/Axios/queries";
+import { userColumns } from "../../data/columns/usersColumns";
 
 function Users() {
   const theme = useTheme();
@@ -40,75 +44,59 @@ function Users() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    fetchUsers();
-  }, []);
+  // const handleEdit = (id) => {
+  //   const userToEdit = users.find((user) => user.id === id);
+  //   setEditData(userToEdit);
+  //   setIsEditing(true);
+  //   if (isMobile) {
+  //     setDialogOpen(true);
+  //   } else {
+  //     setDrawerOpen(true);
+  //   }
+  // };
 
-  const fetchUsers = async () => {
-    try {
-      setLoading(true);
-      const data = await getAllUsers("data");
-      setUsers(data.data); // Adjust based on your API response structure
-    } catch (err) {
-      setError(err);
-    } finally {
-      setLoading(false);
-    }
-  };
+  // const handleAddUser = () => {
+  //   setIsEditing(false);
+  //   setEditData(null);
+  //   if (isMobile) {
+  //     setDialogOpen(true);
+  //   } else {
+  //     setDrawerOpen(true);
+  //   }
+  // // };
 
-  if (loading) return <CircularProgress />;
-  if (error) return <p>Error: {error.message}</p>;
+  // const handleActionSelect = async (event, id) => {
+  //   const action = event.target.value;
 
-  const handleEdit = (id) => {
-    const userToEdit = users.find((user) => user.id === id);
-    setEditData(userToEdit);
-    setIsEditing(true);
-    if (isMobile) {
-      setDialogOpen(true);
-    } else {
-      setDrawerOpen(true);
-    }
-  };
-
-  const handleAddUser = () => {
-    setIsEditing(false);
-    setEditData(null);
-    if (isMobile) {
-      setDialogOpen(true);
-    } else {
-      setDrawerOpen(true);
-    }
-  };
-
-  const handleActionSelect = async (event, id) => {
-    const action = event.target.value;
-
-    try {
-      switch (action) {
-        case "edit":
-          handleEdit(id);
-          break;
-        case "activate":
-          await userManagementClient.post(`/activate/${id}`);
-          swal("Success!", "User has been activated successfully", "success");
-          break;
-        case "deactivate":
-          await userManagementClient.post(`/delete/${id}`);
-          swal("Success!", "User has been deactivated successfully", "success");
-          break;
-        case "resetpassword":
-          await userManagementClient.post(`/resetpassword/${id}`);
-          swal("Success!", "User password has been reset successfully", "success");
-          break;
-        default:
-          break;
-      }
-      // Refetch users data after action
-      fetchUsers();
-    } catch (error) {
-      swal("Error!", "Unable to complete the action, try again later", "error");
-    }
-  };
+  //   try {
+  //     switch (action) {
+  //       case "edit":
+  //         handleEdit(id);
+  //         break;
+  //       case "activate":
+  //         await userManagementClient.post(`/activate/${id}`);
+  //         swal("Success!", "User has been activated successfully", "success");
+  //         break;
+  //       case "deactivate":
+  //         await userManagementClient.post(`/delete/${id}`);
+  //         swal("Success!", "User has been deactivated successfully", "success");
+  //         break;
+  //       case "resetpassword":
+  //         await userManagementClient.post(`/resetpassword/${id}`);
+  //         swal(
+  //           "Success!",
+  //           "User password has been reset successfully",
+  //           "success"
+  //         );
+  //         break;
+  //       default:
+  //         break;
+  //     }
+  //     // Refetch users data after action
+  //   } catch (error) {
+  //     swal("Error!", "Unable to complete the action, try again later", "error");
+  //   }
+  // };
 
   const handleFormSubmit = async (user) => {
     try {
@@ -118,7 +106,7 @@ function Users() {
       } else {
         await createUser(user);
       }
-      fetchUsers();
+
       setDrawerOpen(false);
       setDialogOpen(false);
     } catch (error) {
@@ -126,169 +114,49 @@ function Users() {
     }
   };
 
-  const handleDelete = async (id) => {
-    try {
-      await deleteUser(id);
-      fetchUsers();
-    } catch (error) {
-      swal("Error!", "Unable to delete the user, try again later", "error");
-    }
+  // const handleDelete = async (id) => {
+  //   try {
+  //     await deleteUser(id);
+  //     fetchUsers();
+  //   } catch (error) {
+  //     swal("Error!", "Unable to delete the user, try again later", "error");
+  //   }
+  // };
+
+  const actions = {
+    edit: {
+      key: "EDIT",
+      button_name: "Edit",
+      Show_Button: true,
+    },
+    add: {
+      key: "ADD",
+      button_name: "Add",
+      Show_Button: true,
+    },
+    activateDeactivate: {
+      key: "deletion",
+      button_name: "Deactivate",
+      Show_Button: true,
+    },
+    // ViewCase: {
+    //   key: "VIEWDETAILS",
+    //   button_name: "View Details",
+    //   Show_Button: true,
+    // },
   };
-
-  const columns = [
-    { field: "User_Id", type: "number", headerName: "ID", flex: 0.5 },
-    { field: "Username", headerName: "Username", flex: 0.5 },
-    { field: "First_name", headerName: "First Name", flex: 0.5 },
-    { field: "Last_name", headerName: "Last Name", flex: 0.5 },
-    { field: "User_email", headerName: "Email", flex: 0.5 },
-    {
-      field: "status",
-      headerName: "Status",
-      flex: 0.5,
-      renderCell: ({ row: { status } }) => {
-        const statusText = status === "Active" ? "Active" : "Blocked";
-        const statusColor = status === "Active" ? colors.greenAccent[500]: "red";
-        return (
-          <Typography variant="body1" style={{ color: statusColor }}>
-            {statusText}
-          </Typography>
-        );
-      },
-    },
-    {
-      field: "actions",
-      headerName: "Actions",
-      flex: 1,
-      renderCell: ({ row: { id, isActive } }) => {
-        const buttonText = isActive === 1 ? "Deactivate" : "Activate";
-        const buttonIcon = isActive === 1 ? <BlockIcon /> : <CheckCircleOutline />;
-
-        return (
-          <Box>
-            <Select
-              value=""
-              onChange={(e) => handleActionSelect(e, id)}
-              displayEmpty
-            >
-              <MenuItem value="" disabled>
-                Actions
-              </MenuItem>
-              <MenuItem value="edit">
-                <EditIcon />
-                <Typography variant="body1">Edit</Typography>
-              </MenuItem>
-              <MenuItem value={isActive === 1 ? "deactivate" : "activate"}>
-                <IconButton>{buttonIcon}</IconButton>
-                <Typography variant="body1">{buttonText}</Typography>
-              </MenuItem>
-              <MenuItem value="resetpassword">
-                <LockResetRounded />
-                <Typography variant="body1">Reset Password</Typography>
-              </MenuItem>
-              <MenuItem value="delete">
-                <IconButton onClick={() => handleDelete(id)}>
-                  <BlockIcon />
-                </IconButton>
-                <Typography variant="body1">Delete</Typography>
-              </MenuItem>
-            </Select>
-          </Box>
-        );
-      },
-    },
-  ];
 
   return (
     <Box m="20px">
-      <Header title="User Management" subtitle="Manage Users" />
-      <Box
-        m="40px 0 0 0"
-        height="75vh"
-        sx={{
-          "& .MuiDataGrid-root": {
-            border: "none",
-          },
-          "& .MuiDataGrid-cell": {
-            borderBottom: "none",
-          },
-          "& .name-column--cell": {
-            color: colors.greenAccent[300],
-          },
-          "& .MuiDataGrid-columnHeaders": {
-            backgroundColor: colors.blueAccent[700],
-            borderBottom: "none",
-          },
-          "& .MuiDataGrid-virtualScroller": {
-            backgroundColor: colors.primary[400],
-          },
-          "& .MuiDataGrid-footerContainer": {
-            borderTop: "none",
-            backgroundColor: colors.blueAccent[700],
-          },
-          "& .MuiCheckbox-root": {
-            color: `${colors.greenAccent[200]} !important`,
-          },
-          "& .MuiDataGrid-toolbarContainer .MuiButton-text": {
-            color: `${colors.grey[100]} !important`,
-          },
-        }}
-      >
-        <Box display="flex" justifyContent="flex-end" mt={1}>
-          <Button
-            variant="contained"
-            sx={{
-              backgroundColor: colors.greenAccent[500],
-              borderRadius: "4px",
-            }}
-            onClick={handleAddUser}
-          >
-            <Typography sx={{ color: colors.primary[400], mx: 1 }}>
-              Add User
-            </Typography>
-          </Button>
-        </Box>
-
-        <DataGrid
-          checkboxSelection
-          rows={users}
-          columns={columns}
-          components={{ Toolbar: GridToolbar }}
-          style={{ minWidth: isMobile ? "auto" : "900px", width: "100%" }}
-          getRowId={(row) => row.User_Id}
-        />
-
-        <AnchorTemporaryDrawer
-          anchor="right"
-          open={drawerOpen}
-          onClose={() => setDrawerOpen(false)}
-          FormComponent={() => (
-            <UsersForm onClose={() => setDrawerOpen(false)} onSubmit={handleFormSubmit} isEditing={isEditing} userData={editData} />
-          )}
-        />
-
-        {isMobile && (
-          <Dialog
-            open={dialogOpen}
-            onClose={() => setDialogOpen(false)}
-            fullScreen={isMobile}
-          >
-            <DialogTitle>
-              <IconButton
-                edge="end"
-                color="inherit"
-                onClick={() => setDialogOpen(false)}
-                aria-label="close"
-                sx={{ position: "absolute", right: 8, top: 8 }}
-              >
-                <CloseIcon />
-              </IconButton>
-            </DialogTitle>
-            <DialogContent>
-              <UsersForm onClose={() => setDialogOpen(false)} onSubmit={handleFormSubmit} isEditing={isEditing} userData={editData} />
-            </DialogContent>
-          </Dialog>
-        )}
-      </Box>
+      <DynamicTable
+        title="Users"
+        subtitle="View all Users, create edit or Deactivate"
+        columns={userColumns}
+        FormComponent={UsersForm}
+        // query ={allIndividualClients}
+        base_url={"data"}
+        actions={actions}
+      />
     </Box>
   );
 }

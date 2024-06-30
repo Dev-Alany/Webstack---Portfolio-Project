@@ -17,7 +17,7 @@ import { PulseLoader } from "react-spinners";
 import meinInSuits from "../../Assets/Images/MenInSuits.jpg";
 import { loginCallApi } from "../../api/userservice";
 import swal from "sweetalert";
-import {jwtDecode} from "jwt-decode";
+import { jwtDecode } from "jwt-decode";
 
 function saveTokenToStorage(decodedToken) {
   localStorage.setItem("decodedToken", JSON.stringify(decodedToken));
@@ -44,24 +44,20 @@ function SignInSide({ onLogin }) {
       const Username = formData.get("Username");
       const password = formData.get("password");
 
+      // Save username and password in session storage
+      sessionStorage.setItem('username', Username);
+
       const response = await loginCallApi(Username, password);
 
-      if (response.status === 400) {
-        swal("Error!", "Missing username or password", "error");
-      } else if (response.status === 401) {
-        swal("Error!", "Invalid Password or You're Blocked", "error");
-      } else if (response.status === 200) {
-        // if (response.data.changepassword === 1) {
-        //   navigate("/changepassword");
-        // } else {
-        //   await saveDataToLocalStorage(response);
-        //   onLogin();
-        //   navigate("/super-admin-dashboard");
-        // }
-        navigate("/super-admin-dashboard")
-      } 
-      else {
-        swal("Error!", "Invalid Username", "error");
+      if (response.status === 401) {
+        swal("Error!", `${response.data.message}`, "error");
+      } else {
+        const Username = formData.get("Username");
+        sessionStorage.setItem('user', JSON.stringify(Username));
+        if (onLogin) {
+          onLogin(Username); // Call the onLogin prop function if provided
+        }
+        navigate("/super-admin-dashboard");
       }
     } catch (error) {
       console.error("Error:", error);
@@ -166,7 +162,11 @@ function SignInSide({ onLogin }) {
               </Button>
               <Grid container>
                 <Grid item xs>
-                  <Link component={RouterLink} to="/forgot-password" variant="body2">
+                  <Link
+                    component={RouterLink}
+                    to="/forgot-password"
+                    variant="body2"
+                  >
                     Forgot password?
                   </Link>
                 </Grid>
@@ -177,7 +177,11 @@ function SignInSide({ onLogin }) {
                 </Grid>
               </Grid>
               <Box mt={5}>
-                <Typography variant="body2" color="text.secondary" align="center">
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  align="center"
+                >
                   {"Copyright © "}
                   <Link color="inherit" href="https://mui.com/">
                     Sheria Pro

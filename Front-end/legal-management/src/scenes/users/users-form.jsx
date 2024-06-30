@@ -1,120 +1,133 @@
-import React from "react";
-import { useFormik } from "formik";
-import * as Yup from "yup";
-import { TextField, Button, CircularProgress, Box } from "@mui/material";
+import React, { useEffect, useState } from "react";
+import { CircularProgress, Box } from "@mui/material";
 import swal from "sweetalert";
 import { userManagementClient } from "../../config";
-import { useState } from "react";
+import { getAllUsers } from "../../api/userservice";
+import DynamicForm from "../../data/DynamicForm/DynamicForm";
+import { userFormFields } from "../../data/Fields/userFields";
 
 const UsersForm = (props) => {
   const [loading, setLoading] = useState(false);
+  const [data, setData] = useState([]);
+  const [swalSms, setSwalSms] = useState([]);
 
-  const initialValues = {
-    first_name: props.userData ? props.userData.first_name : "",
-    last_name: props.userData ? props.userData.last_name : "",
-    email: props.userData ? props.userData.email : "",
-    phone: props.userData ? props.userData.phone : "",
-  };
+  const [genderOptions, setGenderOptions] = useState([]);
+  const [refreshTable, setRefreshTable] = useState(false);
+  const [error, setError] = useState(null);
+  const base_url = "data";
 
-  const validationSchema = Yup.object({
-    first_name: Yup.string().required("First Name is required"),
-    last_name: Yup.string().required("Last Name is required"),
-    email: Yup.string().email("Invalid email format").required("Email is required"),
-    phone: Yup.string().required("Phone is required"),
-  });
+  useEffect(() => {
+    fetchGenderOptions();
+    fetchUsers();
+  }, [base_url, refreshTable]);
 
-  const handleSubmit = async (values, { setSubmitting }) => {
-    setLoading(true);
-    const { first_name, last_name, email, phone } = values;
-
+  const fetchUsers = async () => {
     try {
-      if (props.isEditing) {
-        await userManagementClient.put(`/update/${props.userData.User_Id}`, {
-          first_name,
-          last_name,
-          email,
-          phone,
-        });
-        swal("Success!", "User has been updated successfully", "success");
-      } else {
-        await userManagementClient.post("/data", {
-          first_name,
-          last_name,
-          email,
-          phone,
-        });
-        swal("Success!", "User has been created successfully", "success");
-      }
-      props.onClose();
-    } catch (error) {
-      swal("Error!", "Unable to save user, try again later", "error");
+      setLoading(true);
+      const response = await getAllUsers(base_url);
+      setData(response.data); // Adjust based on your API response structure
+    } catch (err) {
+      setError(err);
     } finally {
       setLoading(false);
-      setSubmitting(false);
     }
   };
 
-  const formik = useFormik({
-    initialValues,
-    validationSchema,
-    onSubmit: handleSubmit,
-  });
+  const fetchGenderOptions = async () => {
+    try {
+      const response = await getAllUsers("gender");
+      setGenderOptions(response.data);
+    } catch (err) {
+      setError(err);
+    }
+  };
+
+  const OPtions = genderOptions
+    ? genderOptions.map((gender) => ({
+        parent_key: gender.id,
+        value: gender.id,
+        label: gender.gender,
+      }))
+    : [];
+
+  const initialValues = {
+    Username: props.data ? props.data.Username : "",
+    first_name: props.data ? props.data.First_name : "",
+    last_name: props.data ? props.data.Last_name : "",
+    email: props.data ? props.data.User_email : "",
+    phone: props.data ? props.data.Phone_number : "",
+    genderId: props.data ? props.data.gender : "",
+    created_by: props.data ? props.data.created_by : "",
+    updated_by: props.data ? props.data.updated_by : "",
+  };
+
+  const getCurrentTimestamp = () => {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, "0");
+    const day = String(now.getDate()).padStart(2, "0");
+    const hours = String(now.getHours()).padStart(2, "0");
+    const minutes = String(now.getMinutes()).padStart(2, "0");
+    const seconds = String(now.getSeconds()).padStart(2, "0");
+    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+  };
+
+  const handleSubmit = async (values) => {
+    setLoading(true);
+    try {
+      const creator = JSON.parse(sessionStorage.user);
+      const currentTimestamp = getCurrentTimestamp();
+      if (props.isEditing) {
+        values.updated_by = creator;
+        values.updated_at = currentTimestamp;
+        const Updated = await userManagementClient.put(
+          `/update/${props.data.id}`,
+          values
+        );
+
+        if (Updated) {
+          swal("Success!",`${Updated.data.message}`, "success");
+        }
+      } else {
+        values.created_at = currentTimestamp;
+        values.created_by = creator;
+        const Created = await userManagementClient.post("/data", values);
+        if (Created) {
+          swal("Success!",`${Created.data.message}`, "success");
+        }
+      }
+      setRefreshTable((prev) => !prev); // Refresh the table after submission
+    } catch (error) {
+      swal("Error!", `${error.response.statusText}`, "error");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const userFields = [
+    ...userFormFields,
+    {
+      id: "gender",
+      name: "gender",
+      label: "Gender",
+      type: "select",
+      options: OPtions,
+      isRequired: true,
+    },
+  ];
+
+  if (loading) return <CircularProgress />;
+  if (error) return <p>Error: {error.message}</p>;
 
   return (
-    <Box component="form" onSubmit={formik.handleSubmit} noValidate>
-      <TextField
-        fullWidth
-        id="first_name"
-        name="first_name"
-        label="First Name"
-        value={formik.values.first_name}
-        onChange={formik.handleChange}
-        error={formik.touched.first_name && Boolean(formik.errors.first_name)}
-        helperText={formik.touched.first_name && formik.errors.first_name}
-        margin="normal"
-      />
-      <TextField
-        fullWidth
-        id="last_name"
-        name="last_name"
-        label="Last Name"
-        value={formik.values.last_name}
-        onChange={formik.handleChange}
-        error={formik.touched.last_name && Boolean(formik.errors.last_name)}
-        helperText={formik.touched.last_name && formik.errors.last_name}
-        margin="normal"
-      />
-      <TextField
-        fullWidth
-        id="email"
-        name="email"
-        label="Email"
-        value={formik.values.email}
-        onChange={formik.handleChange}
-        error={formik.touched.email && Boolean(formik.errors.email)}
-        helperText={formik.touched.email && formik.errors.email}
-        margin="normal"
-      />
-      <TextField
-        fullWidth
-        id="phone"
-        name="phone"
-        label="Phone"
-        value={formik.values.phone}
-        onChange={formik.handleChange}
-        error={formik.touched.phone && Boolean(formik.errors.phone)}
-        helperText={formik.touched.phone && formik.errors.phone}
-        margin="normal"
-      />
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
-        <Button color="primary" variant="contained" type="submit" disabled={loading}>
-          {loading ? <CircularProgress size={24} /> : props.isEditing ? 'Update User' : 'Create User'}
-        </Button>
-        <Button color="secondary" variant="outlined" onClick={props.onClose}>
-          Cancel
-        </Button>
-      </Box>
-    </Box>
+    <DynamicForm
+      fields={userFields}
+      onSubmit={handleSubmit}
+      onClose={props.onClose}
+      isEditing={props.isEditing}
+      initialData={initialValues}
+      swalMessage={swalSms}
+    />
   );
 };
 

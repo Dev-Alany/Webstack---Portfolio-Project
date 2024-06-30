@@ -22,8 +22,9 @@ import { useNavigate } from "react-router-dom";
 import AssignTaskModal from "../../scenes/CaseManagement/CaseDetails/CaseTasks/Modal";
 import { useDispatch } from "react-redux";
 import { UpdateDataToStore } from "../../store/Actions/CustomAction";
-import { userManagementClient } from "../../config";
 import { getAllUsers } from "../../api/userservice";
+import axios from "axios";
+import swal from "sweetalert";
 
 const DynamicTable = ({
   title,
@@ -32,6 +33,7 @@ const DynamicTable = ({
   FormComponent,
   base_url,
   actions,
+  id,
 }) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
@@ -40,7 +42,6 @@ const DynamicTable = ({
   const [editData, setEditData] = useState(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [user, setUsers] = useState(false);
   const [taskModalOpen, setTaskModalOpen] = useState(false);
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -48,15 +49,16 @@ const DynamicTable = ({
   const navigate = useNavigate();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const [refreshTable, setRefreshTable] = useState(false);
+
   useEffect(() => {
     fetchUsers();
-  }, []);
+  }, [base_url, refreshTable]);
 
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const data = await getAllUsers(base_url);
-      setUsers(data.data); // Adjust based on your API response structure
+      const response = await getAllUsers(base_url);
+      setData(response.data); // Adjust based on your API response structure
     } catch (err) {
       setError(err);
     } finally {
@@ -94,6 +96,27 @@ const DynamicTable = ({
     }
   };
 
+  const handle_delete = async (id) => {
+    try {
+      setLoading(true);
+     const response = await axios.put(`http://127.0.0.1:5000/delete/${id}`);
+  
+      if (response.status === 200) {
+        swal("Success!", `${response.data.message}`, "success");
+      } else {
+        swal("Error!", "Deletion failed", "error");
+      }
+  
+      setRefreshTable((prev) => !prev); // Refresh the table after deletion
+    } catch (err) {
+      setError(err);
+      console.error("Error:", err);
+      swal("Error!", "An unexpected error occurred", "error");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleAction = async (action, id, row) => {
     switch (action) {
       case "edit":
@@ -111,6 +134,9 @@ const DynamicTable = ({
         break;
       case "viewDocument":
         dispatch(UpdateDataToStore(row?.document));
+        break;
+      case "deletion":
+        handle_delete(id);
         break;
       default:
         break;
@@ -222,6 +248,7 @@ const DynamicTable = ({
           </Typography>
         ) : (
           <DataGrid
+            // getRowId={(row, index) => id}
             checkboxSelection
             rows={data}
             columns={columnsWithActions}
