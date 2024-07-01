@@ -1,4 +1,12 @@
-import { Box, Button, IconButton, Typography, useTheme, useMediaQuery } from "@mui/material";
+import React, { useEffect, useState } from "react";
+import {
+  Box,
+  Button,
+  IconButton,
+  Typography,
+  useTheme,
+  useMediaQuery,
+} from "@mui/material";
 import { tokens } from "../../theme";
 import { mockTransactions } from "../../data/mockData";
 import DownloadOutlinedIcon from "@mui/icons-material/DownloadOutlined";
@@ -12,22 +20,53 @@ import GeographyChart from "../../components/GeographyChart";
 import BarChart from "../../components/BarChart";
 import StatBox from "../../components/StatBox";
 import ProgressCircle from "../../components/ProgressCircle";
-import WorkHistoryIcon from '@mui/icons-material/WorkHistory';
-import GavelIcon from '@mui/icons-material/Gavel';
-import GroupAddIcon from '@mui/icons-material/GroupAdd';
-import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
+import WorkHistoryIcon from "@mui/icons-material/WorkHistory";
+import GavelIcon from "@mui/icons-material/Gavel";
+import GroupAddIcon from "@mui/icons-material/GroupAdd";
+import AccountBalanceIcon from "@mui/icons-material/AccountBalance";
 import Cases from "../CaseManagement/Case";
+import { getAllUsers } from "../../api/userservice";
 
 const Dashboard = () => {
+  const base_url = "individualclients";
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
+  const [indiv, setIndiv] = useState([]);
+  const [cases, setCases] = useState([]);
+  const [error, setError] = useState([]);
+  const [refreshTable, setRefreshTable] = useState(false);
 
+  useEffect(() => {
+    fetchIndividualClients();
+    fetchCases();
+  }, [base_url, refreshTable]);
+
+  const fetchIndividualClients = async () => {
+    try {
+      const response = await getAllUsers(`${base_url}`);
+      setIndiv(response.data.length);
+    } catch (err) {
+      setError(err);
+    }
+  };
+
+  const fetchCases = async () => {
+    try {
+      const response = await getAllUsers("cases");
+      setCases(response.data.length);
+    } catch (err) {
+      setError(err);
+    }
+  };
   return (
     <Box m="20px">
       {/* HEADER */}
       <Box display="flex" justifyContent="space-between" alignItems="center">
-        <Header title="SHERIAPRO DASHBOARD" subtitle="Welcome to SheriaPro Dashboard" />
+        <Header
+          title="SHERIAPRO DASHBOARD"
+          subtitle="Welcome to SheriaPro Dashboard"
+        />
 
         <Box>
           {/* <Button
@@ -61,7 +100,7 @@ const Dashboard = () => {
           justifyContent="center"
         >
           <StatBox
-            title="15,361"
+            title={cases}
             subtitle="Cases"
             progress="0.75"
             increase="+14%"
@@ -90,9 +129,9 @@ const Dashboard = () => {
               />
             }
             sx={{
-              '& .MuiTypography-root': {
-                fontSize: isSmallScreen ? '0.75rem' : '1rem'
-              }
+              "& .MuiTypography-root": {
+                fontSize: isSmallScreen ? "0.75rem" : "1rem",
+              },
             }}
           />
         </Box>
@@ -104,8 +143,8 @@ const Dashboard = () => {
           justifyContent="center"
         >
           <StatBox
-            title="32,441"
-            subtitle="New Clients"
+            title={indiv}
+            subtitle="Individual Clients"
             progress="0.30"
             increase="+5%"
             icon={
@@ -114,9 +153,9 @@ const Dashboard = () => {
               />
             }
             sx={{
-              '& .MuiTypography-root': {
-                fontSize: isSmallScreen ? '0.75rem' : '1rem'
-              }
+              "& .MuiTypography-root": {
+                fontSize: isSmallScreen ? "0.75rem" : "1rem",
+              },
             }}
           />
         </Box>
@@ -129,7 +168,7 @@ const Dashboard = () => {
         >
           <StatBox
             title="32,134"
-            subtitle="Individual Clients"
+            subtitle="New Clients"
             progress="0.80"
             increase="+43%"
             icon={
@@ -138,9 +177,9 @@ const Dashboard = () => {
               />
             }
             sx={{
-              '& .MuiTypography-root': {
-                fontSize: isSmallScreen ? '0.75rem' : '1rem'
-              }
+              "& .MuiTypography-root": {
+                fontSize: isSmallScreen ? "0.75rem" : "1rem",
+              },
             }}
           />
         </Box>
@@ -163,15 +202,15 @@ const Dashboard = () => {
                 variant="h5"
                 fontWeight="600"
                 color={colors.grey[100]}
-                sx={{ fontSize: isSmallScreen ? '1rem' : '1.5rem' }}
+                sx={{ fontSize: isSmallScreen ? "1rem" : "1.5rem" }}
               >
-                Case Events 
+                Case Events
               </Typography>
               <Typography
                 variant="h3"
                 fontWeight="bold"
                 color={colors.greenAccent[500]}
-                sx={{ fontSize: isSmallScreen ? '1.5rem' : '2.5rem' }}
+                sx={{ fontSize: isSmallScreen ? "1.5rem" : "2.5rem" }}
               >
                 59,342
               </Typography>
@@ -184,10 +223,9 @@ const Dashboard = () => {
               </IconButton>
             </Box> */}
           </Box>
-           {/* <Box sx={{ height: "250px", margin: "0", overflow: "hidden" }}>
+          {/* <Box sx={{ height: "250px", margin: "0", overflow: "hidden" }}>
             <LineChart isDashboard={false} sx={{ height: "100%" }} />
           </Box> */}
-
         </Box>
         <Box
           gridColumn="span 4"
@@ -279,9 +317,7 @@ const Dashboard = () => {
           >
             Cases Dashboard
           </Typography>
-          <Box height="250px" mt="-20px">
-            
-          </Box>
+          <Box height="250px" mt="-20px"></Box>
         </Box>
         <Box
           gridColumn="span 4"

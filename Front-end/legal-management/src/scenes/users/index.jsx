@@ -27,8 +27,6 @@ import { userManagementClient } from "../../config";
 import UsersForm from "./users-form";
 import { getAllUsers, createUser, deleteUser } from "../../api/userservice"; // Import service functions
 import DynamicTable from "../../data/DynamicTable/dynamicTable";
-import IndividualClients from "../clientManagement/individualClients";
-import { allIndividualClients } from "../../data/Axios/queries";
 import { userColumns } from "../../data/columns/usersColumns";
 
 function Users() {

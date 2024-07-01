@@ -59,6 +59,8 @@ def get_all_cases():
                 output.append(Cases_data)
         return {"data": output}
 
+
+# **** client Management ***
 def get_all_ClientManagementView():
         sql=text('select * from ClientManagementView;')
         allClientManagementView=db.session.execute(sql)
@@ -75,6 +77,26 @@ def get_all_ClientManagementView():
                 }
 
                 output.append(ClientManagementViewdata)
+        return {"data": output}
+
+def get_all_IndividualClients():
+        userAll=text('select * from Individualclients')
+        user = db.session.execute(userAll)
+        output = []
+        for u in user:
+                user_data = {
+                        'id':u.id,
+                        'First_name': u.First_name,
+                        'Last_name': u.Last_name,
+                        'email': u.email,
+                        'Phone_number':u.phone_number,
+                        'status':u.status,
+                        'created_by':u.created_by,
+                        'updated_by':u.updated_by,
+                        'gender':u.genderId
+
+                }
+                output.append(user_data)
         return {"data": output}
 
 def get_all_notifications(username):

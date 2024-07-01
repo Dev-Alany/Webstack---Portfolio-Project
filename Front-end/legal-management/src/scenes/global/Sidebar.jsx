@@ -11,7 +11,7 @@ import { tokens } from "../../theme";
 import { ProSidebar, Menu, MenuItem, SubMenu } from "react-pro-sidebar";
 import "react-pro-sidebar/dist/css/styles.css";
 import { Link } from "react-router-dom";
-import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
+import ManageAccountsIcon from "@mui/icons-material/ManageAccounts";
 import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
 import PeopleOutlinedIcon from "@mui/icons-material/PeopleOutlined";
 import ContactsOutlinedIcon from "@mui/icons-material/ContactsOutlined";
@@ -26,42 +26,78 @@ import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
 import MapOutlinedIcon from "@mui/icons-material/MapOutlined";
 import { Groups2Outlined } from "@mui/icons-material";
 import AnalyticsOutlinedIcon from "@mui/icons-material/AnalyticsOutlined";
-import DashboardIcon from '@mui/icons-material/Dashboard';
-import PersonIcon from '@mui/icons-material/Person';
-import GroupIcon from '@mui/icons-material/Group';
-import CasesIcon from '@mui/icons-material/Cases';
-import AddchartIcon from '@mui/icons-material/Addchart';
-import SummarizeIcon from '@mui/icons-material/Summarize';
-import LocationCityIcon from '@mui/icons-material/LocationCity';
-import ViewModuleIcon from '@mui/icons-material/ViewModule';
-import CheckIcon from '@mui/icons-material/Check';
-import GavelIcon from '@mui/icons-material/Gavel';
-import TerrainIcon from '@mui/icons-material/Terrain';
-import MessageIcon from '@mui/icons-material/Message';
-import SettingsApplicationsIcon from '@mui/icons-material/SettingsApplications';
+import DashboardIcon from "@mui/icons-material/Dashboard";
+import PersonIcon from "@mui/icons-material/Person";
+import GroupIcon from "@mui/icons-material/Group";
+import CasesIcon from "@mui/icons-material/Cases";
+import AddchartIcon from "@mui/icons-material/Addchart";
+import SummarizeIcon from "@mui/icons-material/Summarize";
+import LocationCityIcon from "@mui/icons-material/LocationCity";
+import ViewModuleIcon from "@mui/icons-material/ViewModule";
+import CheckIcon from "@mui/icons-material/Check";
+import GavelIcon from "@mui/icons-material/Gavel";
+import TerrainIcon from "@mui/icons-material/Terrain";
+import MessageIcon from "@mui/icons-material/Message";
+import SettingsApplicationsIcon from "@mui/icons-material/SettingsApplications";
 
 const menuItems = [
-  { id: 1007, title: "Dashboard", icon: "dashboard", children: [
-      { id: 2005, title: "SuperAdmin Dashboard", icon: "Dashboard", to: "/super-admin-dashboard" }
-    ]
+  {
+    id: 1007,
+    title: "Dashboard",
+    icon: "dashboard",
+    children: [
+      {
+        id: 2005,
+        title: "SuperAdmin Dashboard",
+        icon: "dashboard",
+        to: "/super-admin-dashboard",
+      },
+    ],
   },
-  { id: 1, title: "Case Management", icon: "casemanagement", children: [
-      { id: 2006, title: "Cases", icon: "Cases", to: "/Cases" }
-    ]
+  {
+    id: 1,
+    title: "Case Management",
+    icon: "casemanagement",
+    children: [{ id: 2006, title: "Cases", icon: "Cases", to: "/Cases" }],
   },
-  { id: 3, title: "Client Management", icon: "clientmanagement", children: [
-      { id: 2, title: "Corporate Clients", icon: "clients", to: "/corporate-clients" }
-    ]
+  {
+    id: 3,
+    title: "Client Management",
+    icon: "clientmanagement",
+    children: [
+      {
+        id: 2,
+        title: "Corporate Clients",
+        icon: "clients",
+        to: "/corporate-clients",
+      },
+      {
+        id: 1,
+        title: "Individual Clients",
+        icon: "Individualclients",
+        to: "/individual-clients",
+      },
+    ],
   },
-  { id: 5, title: "User Management", icon: "usermanagement", children: [
-      { id: 1, title: "Users", icon: "users", to: "/users" }
-    ]
+  {
+    id: 5,
+    title: "User Management",
+    icon: "usermanagement",
+    children: [{ id: 1, title: "Users", icon: "users", to: "/users" }],
   },
-  { id: 1012, title: "Accounts and Finance Management", icon: "accountsandfinancemanagement", children: [
-      { id: 2007, title: "Account Setups", icon: "Accounts", to: "/accounts-setups" }
-    ]
+  {
+    id: 1012,
+    title: "Accounts and Finance Management",
+    icon: "accountsandfinancemanagement",
+    children: [
+      {
+        id: 2007,
+        title: "Account Setups",
+        icon: "Accounts",
+        to: "/accounts-setups",
+      },
+    ],
   },
- 
 ];
 
 function getIconByName(iconName) {
@@ -80,7 +116,12 @@ function getIconByName(iconName) {
       return <ViewModuleIcon />;
     case "accountsandfinancemanagement":
       return <ManageAccountsIcon />;
-    
+    case "clients":
+      return <ReceiptOutlinedIcon />;
+    case "Individualclients":
+      return <PersonOutlinedIcon />;
+    case "users":
+      return <PeopleOutlinedIcon />;
   }
 }
 
@@ -155,10 +196,12 @@ const Sidebar = () => {
     >
       {isSmallScreen && (
         <IconButton
-          style={{ margin: "10px", display: isSmallScreen ? "none" : "block",
-          zIndex: isSmallScreen ? -1 : "auto", }}
+          style={{
+            margin: "10px",
+            display: isSmallScreen ? "none" : "block",
+            zIndex: isSmallScreen ? -1 : "auto",
+          }}
           onClick={() => setIsCollapsed(!isCollapsed)}
-          
         >
           <MenuOutlinedIcon />
         </IconButton>
@@ -195,7 +238,6 @@ const Sidebar = () => {
                     display: "flex",
                     justifyContent: "center",
                     alignItems: "flex-start",
-                    
                   }}
                   onClick={() => setIsCollapsed(!isCollapsed)}
                 >

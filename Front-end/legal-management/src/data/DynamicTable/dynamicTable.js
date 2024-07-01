@@ -99,14 +99,14 @@ const DynamicTable = ({
   const handle_delete = async (id) => {
     try {
       setLoading(true);
-     const response = await axios.put(`http://127.0.0.1:5000/delete/${id}`);
-  
+      const response = await axios.put(`http://127.0.0.1:5000/delete/${id}`);
+
       if (response.status === 200) {
         swal("Success!", `${response.data.message}`, "success");
       } else {
         swal("Error!", "Deletion failed", "error");
       }
-  
+
       setRefreshTable((prev) => !prev); // Refresh the table after deletion
     } catch (err) {
       setError(err);
@@ -261,7 +261,7 @@ const DynamicTable = ({
             data={editData}
             open={taskModalOpen}
             onClose={() => setTaskModalOpen(false)}
-            onAction={() => setRefreshTable(true)}
+            onAction={() => setRefreshTable((prev) => !prev)} // Refresh the table after action
           />
         )}
         <AnchorTemporaryDrawer
@@ -272,7 +272,10 @@ const DynamicTable = ({
             <FormComponent
               isEditing={isEditing}
               data={editData}
-              onAction={() => setRefreshTable(true)}
+              onAction={() => {
+                setRefreshTable((prev) => !prev); // Refresh the table after action
+                setDrawerOpen(false);
+              }}
               onClose={() => setDrawerOpen(false)}
             />
           )}
@@ -299,6 +302,10 @@ const DynamicTable = ({
                 onClick={() => setDialogOpen(false)}
                 isEditing={isEditing}
                 data={editData}
+                onAction={() => {
+                  setRefreshTable((prev) => !prev); // Refresh the table after action
+                  setDialogOpen(false);
+                }}
               />
             </DialogContent>
           </Dialog>

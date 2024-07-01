@@ -6,11 +6,11 @@ from clientManagement import Client
 from CasseManagement import Cases, CaseCategory, SubCategory
 from CompanyManagment import Company, IndustrySector
 from AccountManagement import Banks, BankAccounts, BankBranches
-from query import get_all_Users, get_all_Company_Region_View, get_all_cases, get_all_ClientManagementView, get_all_notifications, get_all_gender
+from query import get_all_Users, get_all_Company_Region_View, get_all_cases, get_all_ClientManagementView, get_all_notifications, get_all_gender,get_all_IndividualClients
 from delete import delete_user
 from companyRegionBranches import CompanyRegionBranchView
-from mutation import create_user, Create_Case
-from update import update_user, update_caes
+from mutation import create_user, Create_Case, create_IndividualClient
+from update import update_user, update_caes, update_IndividualClient
 from signin import SignIn
 from flask_login import LoginManager, login_required, current_user
 from query import text
@@ -100,6 +100,18 @@ def update_case(case_id):
 def all_ClientManagementView():
     return get_all_cases()
     # return get_all_ClientManagementView()
+
+@app.route('/individualclients', methods=['GET'])
+def all_IndividualClients():
+    return get_all_IndividualClients()
+
+@app.route('/individualclients', methods=['POST'])
+def create_IndividualClients():
+    return create_IndividualClient()
+
+@app.route('/individualclients/<id>', methods=['PUT'])
+def update_IndividualClients(id):
+    return update_IndividualClient(id)
 
 @app.route('/gender')
 def all_gender():

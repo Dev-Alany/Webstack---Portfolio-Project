@@ -3,6 +3,7 @@ from UserManagment import db, Users
 from CasseManagement import Cases
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import text
+from clientManagement import IndividualClients
 
 def create_user():
     data = request.get_json()
@@ -48,3 +49,30 @@ def Create_Case():
     except Exception as e:
         db.session.rollback()
         return jsonify({'error': str(e)}), 500 
+    
+#  *** Client Management ***
+
+def create_IndividualClient():
+    data = request.get_json()
+    First_name = data.get('first_name')
+    Last_name = data.get('last_name')
+    email = data.get('email')
+    phone_number = data.get('phone')
+    created_by = data.get('created_by')
+    created_at = data.get('created_at')
+    genderId = data.get('gender')
+
+
+    if not First_name or not Last_name or not email:
+        return jsonify({'error': 'Missing required parameters'}), 400
+
+    user = IndividualClients(First_name=First_name, Last_name=Last_name, email=email, phone_number=phone_number, created_by= created_by, created_at=created_at, genderId=genderId)
+    
+    try:
+        db.session.add(user)
+        db.session.commit()
+        return jsonify({'message': f'{First_name} created successfully'}), 201
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500  
+    
