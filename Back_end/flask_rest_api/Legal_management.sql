@@ -114,6 +114,10 @@ desc Individualclients;
 alter table Individualclients
 modify column id INT AUTO_INCREMENT;
 
+alter table clients
+modify column id INT AUTO_INCREMENT,
+modify company_id INT NULL;
+
 alter table Individualclients
 add column genderId int,
 add constraint fk_genderClients
@@ -132,6 +136,20 @@ SHOW CREATE TABLE users;
 select * from users;
 
 select * from clients;
+
+select * from corporateClients;
+
+insert into corporateClients (First_name, Last_name, email, phone_number) values ('Allys', 'Kydde', 'akydde0@accuweather.com', '248 565 2559');
+insert into corporateClients (First_name, Last_name, email, phone_number) values ('Luciana', 'Tanser', 'ltanser1@usa.gov', '562 996 5671');
+insert into corporateClients (First_name, Last_name, email, phone_number) values ('Shelley', 'O''Cassidy', 'socassidy2@cmu.edu', '963 159 7366');
+insert into corporateClients (First_name, Last_name, email, phone_number) values ('Georgeta', 'Keach', 'gkeach3@arstechnica.com', '245 286 3126');
+insert into corporateClients (First_name, Last_name, email, phone_number) values ('Fairleigh', 'Dray', 'fdray4@phpbb.com', '174 585 1804');
+insert into corporateClients (First_name, Last_name, email, phone_number) values ('Cassi', 'Dewett', 'cdewett5@live.com', '937 281 9850');
+insert into corporateClients (First_name, Last_name, email, phone_number) values ('Winnie', 'Heibel', 'wheibel6@cbsnews.com', '401 872 5223');
+insert into corporateClients (First_name, Last_name, email, phone_number) values ('Stoddard', 'Larwood', 'slarwood7@imgur.com', '600 514 3770');
+insert into corporateClients (First_name, Last_name, email, phone_number) values ('Ferrel', 'Cracknell', 'fcracknell8@about.me', '473 461 2018');
+insert into corporateClients (First_name, Last_name, email, phone_number) values ('Ado', 'Le Sarr', 'alesarr9@ow.ly', '105 562 3331');
+
 
 alter table clients
 add column IndividualClientId int,
@@ -165,3 +183,21 @@ alter table users
 add column clientId int,
 add constraint fk_clientId
 foreign key (clientId) references clients(id);
+
+
+select * from Individualclients where id = 11;
+
+select * from cases;
+alter table cases 
+rename column Name to description;
+
+select * from users;
+
+insert into clients (Client_Type) values('Individual Client');
+insert into clients (Client_Type) values('Corporate Client');
+
+SELECT * FROM corporateclients;
+
+alter table corporateclients
+drop constraint fk_genderCorporateClients,
+drop column genderId;

@@ -8,24 +8,14 @@ import {
   useMediaQuery,
 } from "@mui/material";
 import { tokens } from "../../theme";
-import { mockTransactions } from "../../data/mockData";
-import DownloadOutlinedIcon from "@mui/icons-material/DownloadOutlined";
-import EmailIcon from "@mui/icons-material/Email";
-import PointOfSaleIcon from "@mui/icons-material/PointOfSale";
-import PersonAddIcon from "@mui/icons-material/PersonAdd";
-import TrafficIcon from "@mui/icons-material/Traffic";
 import Header from "../../components/Header";
-import LineChart from "../../components/LineChart";
-import GeographyChart from "../../components/GeographyChart";
-import BarChart from "../../components/BarChart";
 import StatBox from "../../components/StatBox";
 import ProgressCircle from "../../components/ProgressCircle";
 import WorkHistoryIcon from "@mui/icons-material/WorkHistory";
-import GavelIcon from "@mui/icons-material/Gavel";
 import GroupAddIcon from "@mui/icons-material/GroupAdd";
-import AccountBalanceIcon from "@mui/icons-material/AccountBalance";
-import Cases from "../CaseManagement/Case";
 import { getAllUsers } from "../../api/userservice";
+import BarChart from "../../components/BarChart";
+import { format } from "date-fns";
 
 const Dashboard = () => {
   const base_url = "individualclients";
@@ -34,6 +24,7 @@ const Dashboard = () => {
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
   const [indiv, setIndiv] = useState([]);
   const [cases, setCases] = useState([]);
+  const [caseData, setCaseData] = useState([]);
   const [error, setError] = useState([]);
   const [refreshTable, setRefreshTable] = useState(false);
 
@@ -55,6 +46,7 @@ const Dashboard = () => {
     try {
       const response = await getAllUsers("cases");
       setCases(response.data.length);
+      setCaseData(response.data);
     } catch (err) {
       setError(err);
     }
@@ -212,8 +204,11 @@ const Dashboard = () => {
                 color={colors.greenAccent[500]}
                 sx={{ fontSize: isSmallScreen ? "1.5rem" : "2.5rem" }}
               >
-                59,342
+                {cases}
               </Typography>
+              <Box>
+                <BarChart />
+              </Box>
             </Box>
             {/* <Box>
               <IconButton>
@@ -245,9 +240,9 @@ const Dashboard = () => {
               Recent Cases
             </Typography>
           </Box>
-          {mockTransactions.map((transaction, i) => (
+          {caseData.map((transaction, i) => (
             <Box
-              key={`${transaction.txId}-${i}`}
+              key={`${transaction.id}-${i}`}
               display="flex"
               justifyContent="space-between"
               alignItems="center"
@@ -260,10 +255,10 @@ const Dashboard = () => {
                   variant="h5"
                   fontWeight="600"
                 >
-                  {transaction.txId}
+                  {transaction.id}
                 </Typography>
                 <Typography color={colors.grey[100]}>
-                  {transaction.user}
+                  {transaction.name}
                 </Typography>
               </Box>
               <Box color={colors.grey[100]}>{transaction.date}</Box>
@@ -333,6 +328,7 @@ const Dashboard = () => {
             Cases Based On Location
           </Typography>
           <Box height="200px">
+            {/* <LineChart /> */}
             {/* <GeographyChart isDashboard={true} /> */}
           </Box>
         </Box>

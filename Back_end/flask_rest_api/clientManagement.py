@@ -25,3 +25,19 @@ class IndividualClients(db.Model):
     created_by = db.Column(db.String(50), nullable=False)
     updated_by = db.Column(db.String(50), nullable=True)
     genderId= db.Column(db.Integer, nullable=True)
+
+
+
+class CorporateClients(db.Model):
+    __tablename__ = "CorporateClients"
+    id = Column(Integer, primary_key=True)
+    First_name = db.Column(db.String(256), nullable=True)
+    Last_name = db.Column(db.String(256), nullable=True)
+    email = db.Column(db.String(256), nullable=True)
+    phone_number = db.Column(db.String(256), nullable=True)
+    Status = db.Column(db.String(50), default=1)
+    created_at = db.Column(db.DateTime, default=func.now())
+    updated_at = db.Column(db.DateTime, onupdate=func.now())
+    created_by = db.Column(db.String(50), nullable=False)
+    updated_by = db.Column(db.String(50), nullable=True)
+    genderId= db.Column(db.Integer, nullable=True)

@@ -11,7 +11,7 @@ const IndividualClientsForm = (props) => {
   const [data, setData] = useState([]);
   const [swalSms, setSwalSms] = useState([]);
   const [genderOptions, setGenderOptions] = useState([]);
-  const [error, setError] = useState(null);
+    const [error, setError] = useState([]);
   const base_url = "individualclients";
 
   useEffect(() => {

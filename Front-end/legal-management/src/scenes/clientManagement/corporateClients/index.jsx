@@ -29,6 +29,7 @@ const actions = {
 };
 
 function CorporateClients() {
+
   return (
     <Box m="20px">
       <DynamicTable
@@ -36,7 +37,7 @@ function CorporateClients() {
         subtitle="View all Corporate Clients, create, edit, or view details"
         columns={CorporateClientsColumns}
         FormComponent={CorporateClientsForm}
-        base_url={"data"}
+        base_url={"corporateclients"}
         actions={actions}
       />
     </Box>

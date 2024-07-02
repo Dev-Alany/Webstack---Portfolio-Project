@@ -42,18 +42,25 @@ def get_all_Company_Region_View():
         return {"data": output}
 
 def get_all_cases():
-        sql=text('select * from cases;')
+        sql=text('select * from casemanagementview;')
         allcases=db.session.execute(sql)
         output = []
         for u in allcases:
                 Cases_data = {
-                        'id':u.Id,
-                        # 'CompanyName':u.CompanyName,
-                        'name': u.Name,
-                        # 'status': u.status,
-                        # 'CaseName': u.CaseName,
-                        # 'CaseCategory':u.CaseCategory,
-                        # 'status':u.Status
+                        'id':u.case_id,
+                        'CompanyName':u.company_name,
+                        'description': u.description,
+                        'created_at': u.created_at,
+                        'created_by': u.created_by,
+                        'updated_by': u.updated_by,
+                        'individual_first_name': u.individual_first_name,
+                        'individual_last_name': u.individual_last_name,
+                        'corporate_first_name': u.corporate_first_name,
+                        'corporate_last_name': u.corporate_last_name,
+                        'case_category': u.case_category,
+                        'case_subcategory': u.case_subcategory,
+                        'updated_at':u.updated_at,
+                        'CaseCategory':u.case_category,
                 }
 
                 output.append(Cases_data)
@@ -99,6 +106,26 @@ def get_all_IndividualClients():
                 output.append(user_data)
         return {"data": output}
 
+def get_all_CorporateClients():
+        userAll=text('select * from CorporateClients')
+        user = db.session.execute(userAll)
+        output = []
+        for u in user:
+                user_data = {
+                        'id':u.id,
+                        'First_name': u.First_name,
+                        'Last_name': u.Last_name,
+                        'email': u.email,
+                        'Phone_number':u.phone_number,
+                        'status':u.status,
+                        'created_by':u.created_by,
+                        'updated_by':u.updated_by,
+
+                }
+                output.append(user_data)
+        return {"data": output}
+
+
 def get_all_notifications(username):
     # Query to get all notifications
     sql = text('SELECT * FROM notifications where UserId=(select User_id from users where Username=:username);')
@@ -134,6 +161,64 @@ def get_all_gender():
         notification_data = {
             'id': u[0],  # Assuming the first column is 'id'
             'gender': u[1]  # Assuming the second column is 'description'
+        }
+        output.append(notification_data)
+
+    return jsonify({
+        "data": output,
+    })
+
+
+def get_all_category():
+    # Query to get all notifications
+    sql = text('SELECT * from CaseCategory;')
+    all_notifications = db.session.execute(sql).fetchall()
+
+
+    # Prepare the output
+    output = []
+    for u in all_notifications:
+        notification_data = {
+            'id': u[0],  # Assuming the first column is 'id'
+            'Category': u[1]  # Assuming the second column is 'description'
+        }
+        output.append(notification_data)
+
+    return jsonify({
+        "data": output,
+    })
+
+def get_all_casesubcategory(id):
+    # Query to get all notifications
+    sql = text('SELECT * from casesubcategory where categoryId=:id;')
+    all_notifications = db.session.execute(sql,{"id":id}).fetchall()
+
+
+    # Prepare the output
+    output = []
+    for u in all_notifications:
+        notification_data = {
+            'id': u[0],  # Assuming the first column is 'id'
+            'Category': u[1]  # Assuming the second column is 'description'
+        }
+        output.append(notification_data)
+
+    return jsonify({
+        "data": output,
+    })
+
+def get_all_clientType():
+    # Query to get all notifications
+    sql = text('SELECT * from clients;')
+    all_notifications = db.session.execute(sql).fetchall()
+
+
+    # Prepare the output
+    output = []
+    for u in all_notifications:
+        notification_data = {
+            'id': u[0],  # Assuming the first column is 'id'
+            'Client_Type': u[1]  # Assuming the second column is 'description'
         }
         output.append(notification_data)
 

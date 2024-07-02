@@ -4,7 +4,7 @@ import * as Yup from "yup";
 import { TextField, Button, CircularProgress, Box, MenuItem } from "@mui/material";
 import swal from "sweetalert";
 
-const DynamicForm = ({ fields, onSubmit, onClose, isEditing, swalMessage, initialData = {} }) => {
+const DynamicForm = ({ fields, onSubmit, onClose, isEditing, initialData = {} }) => {
   const [loading, setLoading] = useState(false);
 
   const initialValues = fields.reduce((acc, field) => {

@@ -6,11 +6,11 @@ from clientManagement import Client
 from CasseManagement import Cases, CaseCategory, SubCategory
 from CompanyManagment import Company, IndustrySector
 from AccountManagement import Banks, BankAccounts, BankBranches
-from query import get_all_Users, get_all_Company_Region_View, get_all_cases, get_all_ClientManagementView, get_all_notifications, get_all_gender,get_all_IndividualClients
+from query import get_all_Users, get_all_Company_Region_View, get_all_cases, get_all_ClientManagementView, get_all_notifications, get_all_gender,get_all_IndividualClients, get_all_CorporateClients, get_all_category, get_all_casesubcategory, get_all_clientType
 from delete import delete_user
 from companyRegionBranches import CompanyRegionBranchView
-from mutation import create_user, Create_Case, create_IndividualClient
-from update import update_user, update_caes, update_IndividualClient
+from mutation import create_user, Create_Case, create_IndividualClient, create_CorporateClient
+from update import update_user, update_caes, update_IndividualClient, update_CorporateClient
 from signin import SignIn
 from flask_login import LoginManager, login_required, current_user
 from query import text
@@ -113,6 +113,19 @@ def create_IndividualClients():
 def update_IndividualClients(id):
     return update_IndividualClient(id)
 
+
+@app.route('/corporateclients', methods=['GET'])
+def all_corporateclients():
+    return get_all_CorporateClients()
+
+@app.route('/corporateclients', methods=['POST'])
+def create_corporateclients():
+    return create_CorporateClient()
+
+@app.route('/corporateclients/<id>', methods=['PUT'])
+def update_corporateclients(id):
+    return update_CorporateClient(id)
+
 @app.route('/gender')
 def all_gender():
     return get_all_gender()
@@ -133,6 +146,19 @@ def delete(id):
     return delete_user(id)
 
 
+#  ** Setup Management
+
+@app.route('/Category', methods=['GET'])
+def all_Categories():
+    return get_all_category()
+
+@app.route('/Casesubcategory/<int:id>', methods=['GET'])
+def caseSubcategoryByCategory(id):
+    return get_all_casesubcategory(id)
+
+@app.route('/clienttype', methods=['GET'])
+def all_clientType():
+    return get_all_clientType()
 
 if __name__ == '__main__':
     with app.app_context():
