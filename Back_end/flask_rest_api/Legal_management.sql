@@ -201,3 +201,21 @@ SELECT * FROM corporateclients;
 alter table corporateclients
 drop constraint fk_genderCorporateClients,
 drop column genderId;
+
+select * from casesubcategory;
+select * from clients;
+
+select * from cases;
+
+
+
+alter table cases
+add column IndividualclientId int,
+add constraint clients_ibfk_22
+foreign key (IndividualclientId) references Individualclients(id);
+
+select * from Individualclients where id=(select IndividualclientId from cases where case_category_Id = 1);
+
+
+alter table notifications
+add column isRead bit;

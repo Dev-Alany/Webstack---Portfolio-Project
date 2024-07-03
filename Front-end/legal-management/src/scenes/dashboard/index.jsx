@@ -24,12 +24,14 @@ const Dashboard = () => {
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
   const [indiv, setIndiv] = useState([]);
   const [cases, setCases] = useState([]);
+  const [recentCases, setrecentCases]=useState([]);
   const [caseData, setCaseData] = useState([]);
   const [error, setError] = useState([]);
   const [refreshTable, setRefreshTable] = useState(false);
 
   useEffect(() => {
     fetchIndividualClients();
+    fetchRecentCases();
     fetchCases();
   }, [base_url, refreshTable]);
 
@@ -47,6 +49,16 @@ const Dashboard = () => {
       const response = await getAllUsers("cases");
       setCases(response.data.length);
       setCaseData(response.data);
+    } catch (err) {
+      setError(err);
+    }
+  };
+
+  
+  const fetchRecentCases = async () => {
+    try {
+      const response = await getAllUsers("recentcases");
+      setrecentCases(response.data);
     } catch (err) {
       setError(err);
     }
@@ -111,8 +123,8 @@ const Dashboard = () => {
           justifyContent="center"
         >
           <StatBox
-            title="431,225"
-            subtitle="Corprate Clients"
+            title={recentCases.length}
+            subtitle={"Corprate Clients"}
             progress="0.50"
             increase="+21%"
             icon={
@@ -159,7 +171,7 @@ const Dashboard = () => {
           justifyContent="center"
         >
           <StatBox
-            title="32,134"
+            title={recentCases.length}
             subtitle="New Clients"
             progress="0.80"
             increase="+43%"
@@ -240,7 +252,7 @@ const Dashboard = () => {
               Recent Cases
             </Typography>
           </Box>
-          {caseData.map((transaction, i) => (
+          {recentCases.map((transaction, i) => (
             <Box
               key={`${transaction.id}-${i}`}
               display="flex"
@@ -258,10 +270,10 @@ const Dashboard = () => {
                   {transaction.id}
                 </Typography>
                 <Typography color={colors.grey[100]}>
-                  {transaction.name}
+                  {transaction.description}
                 </Typography>
               </Box>
-              <Box color={colors.grey[100]}>{transaction.date}</Box>
+              <Box color={colors.grey[100]}>{transaction.created_at}</Box>
               {/* <Box
                 backgroundColor={colors.greenAccent[500]}
                 p="5px 10px"

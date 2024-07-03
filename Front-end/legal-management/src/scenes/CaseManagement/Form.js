@@ -46,7 +46,7 @@ const CasesForm = (props) => {
         setCategoryOptions(categoryResponse.data);
       }
       const response = await getAllUsers(`Casesubcategory/${1}`);
-        setSubcategoryOptions(response.data);
+      setSubcategoryOptions(response.data);
       setIndividualOptions(individualResponse.data);
       setCorporateOptions(corporateResponse.data);
       setClientTypeOptions(clientResponse.data);
@@ -62,15 +62,15 @@ const CasesForm = (props) => {
 
   const fetchSubcategoryOptions = async () => {
     // const categoryId = sessionStorage.getItem("categoryId");
-      try {
-        setLoading(true);
-        const response = await getAllUsers(`Casesubcategory/${1}`);
-        setSubcategoryOptions(response.data);
-      } catch (err) {
-        setError(err);
-      }finally{
-        setLoading(false);
-      }
+    try {
+      setLoading(true);
+      const response = await getAllUsers(`Casesubcategory/${1}`);
+      setSubcategoryOptions(response.data);
+    } catch (err) {
+      setError(err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleCategoryChange = async () => {
@@ -81,22 +81,42 @@ const CasesForm = (props) => {
   };
 
   const initialValues = {
-    Name: props.data ? props.data.name : "",
-    id: props.data ? props.data.id : "",
+    Description: props.data ? props.data.description : "",
+    Category: props.data ? props.data.CaseCategory : "",
+    clients_first_name: props.data ? props.data.individual_first_name : "",
+    Subcategory: props.data ? props.data.case_subcategory : "",
+    clientType: props.data ? props.data.id : "",
+  };
+
+  const getCurrentTimestamp = () => {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, "0");
+    const day = String(now.getDate()).padStart(2, "0");
+    const hours = String(now.getHours()).padStart(2, "0");
+    const minutes = String(now.getMinutes()).padStart(2, "0");
+    const seconds = String(now.getSeconds()).padStart(2, "0");
+    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
   };
 
   const handleSubmit = async (values) => {
     setLoading(true);
     setClientType(values.clientType);
+    const timestamp = getCurrentTimestamp();
+    const user = JSON.parse(sessionStorage.user);
     try {
       if (props.isEditing) {
+        values.updated_at = timestamp;
+        values.updated_by = user;
         await userManagementClient.put(`/${base_url}/${props.data.id}`, values);
       } else {
-        await userManagementClient.post(`/${base_url}`, values);
+        values.created_at = timestamp;
+        values.created_by = user;
+        await userManagementClient.post("/caseManagment", values);
       }
       setRefreshTable((prev) => !prev); // Refresh the table after submission
     } catch (error) {
-      swal("Error!", "Unable to save user, try again later", "error");
+      swal("Error!", `${error.response.data.error}`, "error");
     } finally {
       setLoading(false);
     }
@@ -152,7 +172,7 @@ const CasesForm = (props) => {
       name: "clients_first_name",
       label: "First Name",
       type: "select",
-      options: clientType === "individual" ? IndivOptions : CorpOptions,
+      options: clientType === "individual" ? IndivOptions : IndivOptions,
       isRequired: true,
     },
     {

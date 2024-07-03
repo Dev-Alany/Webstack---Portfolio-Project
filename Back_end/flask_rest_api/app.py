@@ -6,7 +6,7 @@ from clientManagement import Client
 from CasseManagement import Cases, CaseCategory, SubCategory
 from CompanyManagment import Company, IndustrySector
 from AccountManagement import Banks, BankAccounts, BankBranches
-from query import get_all_Users, get_all_Company_Region_View, get_all_cases, get_all_ClientManagementView, get_all_notifications, get_all_gender,get_all_IndividualClients, get_all_CorporateClients, get_all_category, get_all_casesubcategory, get_all_clientType
+from query import get_all_Users, get_all_Company_Region_View, get_all_cases, get_all_ClientManagementView, get_all_notifications, get_all_gender,get_all_IndividualClients, get_all_CorporateClients, get_all_category, get_all_casesubcategory, get_all_clientType, get_all_recentCases
 from delete import delete_user
 from companyRegionBranches import CompanyRegionBranchView
 from mutation import create_user, Create_Case, create_IndividualClient, create_CorporateClient
@@ -87,8 +87,12 @@ def getCompanyRegionView():
 def get_all_Cases():
     return get_all_cases()
 
-@app.route('/cases', methods =['POST'])
-def create_cases():
+@app.route('/recentcases', methods =['GET'])
+def all_recentCases():
+    return get_all_recentCases()
+
+@app.route('/caseManagment', methods =['POST'])
+def CaseCreation():
     return Create_Case()
 
 @app.route('/cases/<case_id>', methods=['PUT'])

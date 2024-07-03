@@ -32,23 +32,42 @@ def create_user():
     
 def Create_Case():
     data = request.get_json()
-    Name = data.get('Name')
-    # Last_name = data.get('last_name')
-    # User_Email = data.get('email')
-    # Phone_number = data.get('phone')
+    description = data.get('Description')
+    case_category_Id = data.get('Category')
+    case_subcategory_Id = data.get('Subcategory')
+    clientType = data.get('clientType')
+    created_by = data.get('created_by')
+    created_at = data.get('created_at')
+    IndividualclientId = data.get('clients_first_name')
 
-    if not Name: 
+        
+
+    # Determine client ID based on client type
+    # Assuming 'email' holds the ID value
+
+    if not description:
         return jsonify({'error': 'Missing required parameters'}), 400
 
-    Case = Cases(Name=Name)
-    
+    query = text("""
+        INSERT INTO cases (description, case_category_Id, clientType, IndividualclientId, created_by, created_at)
+        VALUES (:description, :case_category_Id,  :clientType, :IndividualclientId,:created_by, :created_at)
+    """)
+
     try:
-        db.session.add(Case)
+        db.session.execute(query, {
+            'description': description,
+            'case_category_Id': case_category_Id,
+            'clientType': clientType,
+            'IndividualclientId': IndividualclientId,
+            # 'corporateclientId': corporateclientId,
+            'created_by': created_by,
+            'created_at': created_at
+        })
         db.session.commit()
-        return jsonify({'message': f'{Name} created successfully'}), 201
+        return jsonify({'message': f'{description} created successfully'}), 201
     except Exception as e:
         db.session.rollback()
-        return jsonify({'error': str(e)}), 500 
+        return jsonify({'error': str(e)}), 500
     
 #  *** Client Management ***
 

@@ -66,6 +66,30 @@ def get_all_cases():
                 output.append(Cases_data)
         return {"data": output}
 
+def get_all_recentCases():
+        sql=text('select * from casemanagementview order by created_at limit 10;')
+        allcases=db.session.execute(sql)
+        output = []
+        for u in allcases:
+                Cases_data = {
+                        'id':u.case_id,
+                        'CompanyName':u.company_name,
+                        'description': u.description,
+                        'created_at': u.created_at,
+                        'created_by': u.created_by,
+                        'updated_by': u.updated_by,
+                        'individual_first_name': u.individual_first_name,
+                        'individual_last_name': u.individual_last_name,
+                        'corporate_first_name': u.corporate_first_name,
+                        'corporate_last_name': u.corporate_last_name,
+                        'case_category': u.case_category,
+                        'case_subcategory': u.case_subcategory,
+                        'updated_at':u.updated_at,
+                        'CaseCategory':u.case_category,
+                }
+
+                output.append(Cases_data)
+        return {"data": output}
 
 # **** client Management ***
 def get_all_ClientManagementView():

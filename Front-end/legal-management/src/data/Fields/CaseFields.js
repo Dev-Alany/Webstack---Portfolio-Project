@@ -1,3 +1,3 @@
 export const CaseFields = [
-    { id: "name", name: "Name", label: "Name", value: "", isRequired: true },
+    { id: "description", name: "Description", label: "description", value: "", isRequired: true },
 ]
